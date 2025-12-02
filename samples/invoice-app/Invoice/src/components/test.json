@@ -1,0 +1,431 @@
+{
+    "summaryData": {
+        "ContractNumber": "FA4801-25-P-0047",
+        "InvoiceNumber": "INV-1025",
+        "OverallStatus": "PartiallyMatched",
+        "ChecksPerformed": "16",
+        "ChecksPassed": "10",
+        "ChecksFailed_High": "2",
+        "ChecksFailed_Medium": "2",
+        "ChecksFailed_Low": "2",
+        "Status": "Partially compliant with significant findings",
+        "ValidationScope": [
+            "Header",
+            "CLIN",
+            "Acceptance",
+            "Financial",
+            "Data Integrity",
+            "Logical"
+        ],
+        "Warnings": "2",
+        "Timestamp": "2025-11-04T00:00:00",
+        "Recommendations": [
+            "Investigate vendor name discrepancy and confirm vendor identity.",
+            "Verify total amount mismatch between invoice and goods receipt.",
+            "Review acceptance remarks for CLIN 003 and confirm resolution of rejected unit.",
+            "Ensure funding codes are properly documented in all documents."
+        ]
+    },
+    "matchEvaluations": [
+        {
+            "MismatchType": "MissingLineItem",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "All CLINs are present across documents.",
+            "Justification": "No missing line items detected.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "line_item"
+            ]
+        },
+        {
+            "MismatchType": "QuantityMismatch",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "Quantities match across all documents for all CLINs.",
+            "Justification": "No discrepancies in quantity_po, quantity_invoice, and quantity_goods_receipt.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "quantity_po",
+                "quantity_invoice",
+                "quantity_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "OverBilledQuantity",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "No overbilling detected; invoiced quantities do not exceed PO or goods receipt quantities.",
+            "Justification": "All invoiced quantities are within acceptable limits.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "quantity_invoice",
+                "quantity_po",
+                "quantity_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "PriceMismatch",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "Unit prices match across all documents for all CLINs.",
+            "Justification": "No discrepancies in unit_price_po, unit_price_invoice, and unit_price_goods_receipt.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "unit_price_po",
+                "unit_price_invoice",
+                "unit_price_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "ExtensionError",
+            "Status": "Not Passed",
+            "Severity": "High",
+            "Reason": "Amount mismatch for CLIN 003 due to rejected unit.",
+            "Justification": "Amount in goods receipt reflects 31 accepted units, while invoice and PO reflect 32 units.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "amount_po",
+                "amount_invoice",
+                "amount_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "FundingLineMismatch",
+            "Status": "Warning",
+            "Severity": "Low",
+            "Reason": "Funding codes are missing in all documents.",
+            "Justification": "Funding codes are not provided in the data.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "funding_code_po",
+                "funding_code_invoice"
+            ]
+        },
+        {
+            "MismatchType": "UnacceptedShipment",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "All invoiced CLINs have corresponding goods receipt entries.",
+            "Justification": "No missing goods receipt for invoiced CLINs.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt"
+            ],
+            "SourceFields": [
+                "line_item_invoice",
+                "line_item_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "RejectedLineItems",
+            "Status": "Flagged",
+            "Severity": "Medium",
+            "Reason": "CLIN 003 has 1 rejected unit due to cracked screen.",
+            "Justification": "Acceptance remarks indicate rejection of 1 unit.",
+            "LinkedDocuments": [
+                "Goods Receipt"
+            ],
+            "SourceFields": [
+                "acceptance_condition_goods_receipt",
+                "acceptance_remarks_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "AcceptanceQuantityMismatch",
+            "Status": "Not Passed",
+            "Severity": "Medium",
+            "Reason": "Quantity accepted in goods receipt (31) does not match quantity invoiced (32) for CLIN 003.",
+            "Justification": "Discrepancy due to 1 rejected unit in goods receipt.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt"
+            ],
+            "SourceFields": [
+                "quantity_invoice",
+                "quantity_accepted_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "ContractOrPONumberMismatch",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "Contract numbers match across all documents.",
+            "Justification": "No discrepancies in contract numbers.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "contract_number_purchase_order",
+                "contract_number_invoice",
+                "contract_number_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "VendorMismatch",
+            "Status": "Flagged",
+            "Severity": "Low",
+            "Reason": "Vendor names differ slightly between documents.",
+            "Justification": "Minor variation in vendor name formatting (e.g., inclusion of 'Inc.' and CAGE code).",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "vendor_invoice",
+                "vendor_goods_receipt",
+                "vendor_purchase_order"
+            ]
+        },
+        {
+            "MismatchType": "DateSequenceError",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "Invoice date matches acceptance date.",
+            "Justification": "No discrepancies in date sequence.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt"
+            ],
+            "SourceFields": [
+                "invoice_date",
+                "acceptance_date"
+            ]
+        },
+        {
+            "MismatchType": "DuplicateInvoice",
+            "Status": "Warning",
+            "Severity": "Low",
+            "Reason": "Unable to verify duplicate invoice without historical data.",
+            "Justification": "No historical data provided for duplicate invoice check.",
+            "LinkedDocuments": [
+                "Invoice"
+            ],
+            "SourceFields": [
+                "invoice_number_invoice"
+            ]
+        },
+        {
+            "MismatchType": "TotalAmountMismatch",
+            "Status": "Not Passed",
+            "Severity": "High",
+            "Reason": "Total amount in invoice ($797,600) exceeds goods receipt ($790,400).",
+            "Justification": "Discrepancy likely due to rejected unit in CLIN 003.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "total_amount_po",
+                "total_amount_invoice",
+                "total_amount_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "CurrencyMismatch",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "Currency matches across all documents.",
+            "Justification": "All documents use USD as currency.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "currency_po",
+                "currency_invoice",
+                "currency_goods_receipt"
+            ]
+        },
+        {
+            "MismatchType": "EarlyBilling",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "Invoice date matches acceptance date.",
+            "Justification": "No early billing detected.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt"
+            ],
+            "SourceFields": [
+                "invoice_date",
+                "acceptance_date"
+            ]
+        },
+        {
+            "MismatchType": "PartialShipment",
+            "Status": "Passed",
+            "Severity": "Low",
+            "Reason": "Total shipped matches total ordered for all CLINs.",
+            "Justification": "No discrepancies in shipment quantities.",
+            "LinkedDocuments": [
+                "Invoice",
+                "Goods Receipt",
+                "Purchase Order"
+            ],
+            "SourceFields": [
+                "quantity_po",
+                "quantity_shipped_goods_receipt"
+            ]
+        }
+    ],
+    "clinsData": [
+        {
+            "line_item": "001",
+            "po_shipment_number": "SHP-001",
+            "po_delivery_estimate_date": "03/26/2025 00:00:00",
+            "shipment_number_goods_receipt": "SHP-001",
+            "delivery_date_goods_receipt": "2025-03-26",
+            "line_item_po": "Rugged Laptop AR-12 (i7, 16 GB, 1 TB) – Initial Delivery",
+            "line_item_invoice": "Rugged Laptop AR\u000e08812",
+            "line_item_goods_receipt": "Rugged Laptop AR-12",
+            "quantity_po": "48",
+            "quantity_invoice": "48",
+            "quantity_shipped_goods_receipt": "48",
+            "quantity_accepted_goods_receipt": "48",
+            "quantity_rejected_goods_receipt": "0",
+            "unit_price_po": "9850.00 USD",
+            "unit_price_invoice": "9850",
+            "unit_price_goods_receipt": "9850",
+            "amount_po": "$472,800.00",
+            "amount_invoice": "472800",
+            "amount_goods_receipt": "472800",
+            "acceptance_condition_goods_receipt": "Accepted",
+            "acceptance_remarks_goods_receipt": "",
+            "funding_code_po": "",
+            "match_status": "",
+            "notes": ""
+        },
+        {
+            "line_item": "002",
+            "po_shipment_number": "SHP-001",
+            "po_delivery_estimate_date": "03/26/2025 00:00:00",
+            "shipment_number_goods_receipt": "SHP-001",
+            "delivery_date_goods_receipt": "2025-03-26",
+            "line_item_po": "Docking Station with Power Adapter – Initial Delivery",
+            "line_item_invoice": "Docking Station",
+            "line_item_goods_receipt": "Docking Station",
+            "quantity_po": "48",
+            "quantity_invoice": "48",
+            "quantity_shipped_goods_receipt": "48",
+            "quantity_accepted_goods_receipt": "48",
+            "quantity_rejected_goods_receipt": "0",
+            "unit_price_po": "1050.00 USD",
+            "unit_price_invoice": "1050",
+            "unit_price_goods_receipt": "1050",
+            "amount_po": "$50,400.00",
+            "amount_invoice": "50400",
+            "amount_goods_receipt": "50400",
+            "acceptance_condition_goods_receipt": "Accepted",
+            "acceptance_remarks_goods_receipt": "",
+            "funding_code_po": "",
+            "match_status": "",
+            "notes": ""
+        },
+        {
+            "line_item": "003",
+            "po_shipment_number": "SHP-001",
+            "po_delivery_estimate_date": "03/26/2025 00:00:00",
+            "shipment_number_goods_receipt": "SHP-001",
+            "delivery_date_goods_receipt": "2025-03-26",
+            "line_item_po": "Rugged Tablet TR-8 – Initial Delivery",
+            "line_item_invoice": "Rugged Tablet TR\u000e0888",
+            "line_item_goods_receipt": "Rugged Tablet TR-8",
+            "quantity_po": "32",
+            "quantity_invoice": "32",
+            "quantity_shipped_goods_receipt": "32",
+            "quantity_accepted_goods_receipt": "31",
+            "quantity_rejected_goods_receipt": "1",
+            "unit_price_po": "7200.00 USD",
+            "unit_price_invoice": "7200",
+            "unit_price_goods_receipt": "7200",
+            "amount_po": "$230,400.00",
+            "amount_invoice": "230400",
+            "amount_goods_receipt": "223200",
+            "acceptance_condition_goods_receipt": "Partially Accepted",
+            "acceptance_remarks_goods_receipt": "CLIN 003: 1 unit rejected due to cracked screen.",
+            "funding_code_po": "",
+            "match_status": "",
+            "notes": ""
+        },
+        {
+            "line_item": "004",
+            "po_shipment_number": "SHP-001",
+            "po_delivery_estimate_date": "03/26/2025 00:00:00",
+            "shipment_number_goods_receipt": "SHP-001",
+            "delivery_date_goods_receipt": "2025-03-26",
+            "line_item_po": "Transit Case Set - Initial Delivery",
+            "line_item_invoice": "Transit Case Set",
+            "line_item_goods_receipt": "Transit Case Set",
+            "quantity_po": "80",
+            "quantity_invoice": "80",
+            "quantity_shipped_goods_receipt": "80",
+            "quantity_accepted_goods_receipt": "80",
+            "quantity_rejected_goods_receipt": "0",
+            "unit_price_po": "550.00 USD",
+            "unit_price_invoice": "550",
+            "unit_price_goods_receipt": "550",
+            "amount_po": "$44,000.00",
+            "amount_invoice": "44000",
+            "amount_goods_receipt": "44000",
+            "acceptance_condition_goods_receipt": "Accepted",
+            "acceptance_remarks_goods_receipt": "",
+            "funding_code_po": "",
+            "match_status": "",
+            "notes": ""
+        }
+    ],
+    "keyDetails": {
+        "contract_number_purchase_order": "FA4801-25-P-0047",
+        "contract_number_invoice": "FA4801-25-P-0047",
+        "contract_number_goods_receipt": "FA4801-25-P-0047",
+        "invoice_number_invoice": "INV-1025",
+        "invoice_number_goods_receipt": "INV-1025",
+        "vendor_invoice": "Apex Rugged Systems",
+        "vendor_goods_receipt": "Apex Rugged Systems, Inc. (CAGE 6Y7A2)",
+        "vendor_purchase_order": "Apex Rugged Systems, Inc.",
+        "currency_po": "USD",
+        "currency_invoice": "USD",
+        "currency_goods_receipt": "USD",
+        "total_amount_po": "$472,800.00",
+        "total_amount_invoice": "797600",
+        "total_amount_goods_receipt": "790400",
+        "acceptance_date": "2025-03-29",
+        "invoice_date": "2025-03-29T00:00:00",
+        "shipment_reference": "SHP-001",
+        "delivery_point": "",
+        "rejection_reason": [
+            "CLIN 003: 1 unit rejected due to cracked screen."
+        ],
+        "verification_summary": ""
+    }
+}

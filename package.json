@@ -1,0 +1,10 @@
+{
+  "name": "uipath-sdk-samples",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Collection of sample apps for SEs using the UiPath SDK.",
+  "scripts": {
+    "list:samples": "ls samples",
+    "install:all": "echo \"Run npm install inside each sample folder as needed.\""
+  }
+}
