@@ -8,7 +8,9 @@ Each sample is a standalone project under the `samples/` folder.
 Open any sample folder and read its local `README.md` (if present) for details on setup and usage.
 
 ## Samples
-
+voice1.png
+Invoice2.png
+samples
 - `samples/invoice-app` – Invoice-related sample app copied from `CodingProjects/Uipath Tasks/Invoice`
 - `samples/process-app` – Process app sample copied from `Target360App/uipath-typescript/samples/process-app`
 
