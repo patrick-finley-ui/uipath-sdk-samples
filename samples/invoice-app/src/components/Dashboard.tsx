@@ -44,6 +44,7 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
   const [isStartingProcess, setIsStartingProcess] = useState(false);
   const [startProcessError, setStartProcessError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const fetchInvoices = async (isRefresh = false) => {
     try {
@@ -171,8 +172,8 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
   };
 
   const handleStartProcess = async () => {
-    if (!invoiceFilePath.trim()) {
-      setStartProcessError('Invoice file path is required');
+    if (!invoiceFilePath.trim() && !uploadedFile) {
+      setStartProcessError('Invoice file path or uploaded file is required');
       return;
     }
 
@@ -182,8 +183,36 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
 
       const processKey = import.meta.env.VITE_MAESTRO_PROCESS_KEY || '44479d67-c3d0-41e4-9ae0-3b337e320f9e';
       const folderId = import.meta.env.VITE_MAESTRO_FOLDER_KEY_ID
-        ? Number(import.meta.env.VITE_MAESTRO_FOLDER_KEY_ID) 
+        ? Number(import.meta.env.VITE_MAESTRO_FOLDER_KEY_ID)
         : 2495996;
+
+      const BUCKET_ID = 101519;
+      const BUCKET_FOLDER_ID = 2500475;
+
+      let uploadedFilePath = invoiceFilePath;
+
+      // Upload file to bucket if a file was uploaded
+      if (uploadedFile) {
+        console.log('📤 Uploading file to bucket:', uploadedFile.name);
+
+        const uploadPath = `/${uploadedFile.name}`;
+
+        try {
+          const uploadResult = await sdk.buckets.uploadFile({
+            bucketId: BUCKET_ID,
+            folderId: BUCKET_FOLDER_ID,
+            path: uploadPath,
+            content: uploadedFile,
+            contentType: uploadedFile.type,
+          });
+
+          console.log('✅ File uploaded successfully:', uploadResult);
+          uploadedFilePath = uploadedFile.name;
+        } catch (uploadError) {
+          console.error('❌ Error uploading file:', uploadError);
+          throw new Error(`Failed to upload file: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`);
+        }
+      }
 
       const requestPayload = {
         processKey: processKey,
@@ -193,6 +222,7 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
         inputArguments: JSON.stringify({
           InvoiceFilePath: invoiceFilePath,
           SendToEmail: sendToEmail,
+          invoiceFile: uploadedFilePath,
         }),
         requiresUserInteraction: false,
       };
@@ -549,6 +579,7 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
         onClose={() => {
           setIsStartProcessModalOpen(false);
           setStartProcessError(null);
+          setUploadedFile(null);
         }}
         invoiceFilePath={invoiceFilePath}
         setInvoiceFilePath={setInvoiceFilePath}
@@ -557,6 +588,9 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
         onSubmit={handleStartProcess}
         isLoading={isStartingProcess}
         error={startProcessError}
+        sdk={sdk}
+        uploadedFile={uploadedFile}
+        setUploadedFile={setUploadedFile}
       />
     </div>
     </div>
