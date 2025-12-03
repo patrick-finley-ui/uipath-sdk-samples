@@ -25,3 +25,8 @@ dist
 *.sln
 *.sw?
 *.env
+
+*.env.*
+# Allow .example files to be tracked
+!.env.example
+!.env.development.example

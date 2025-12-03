@@ -8,9 +8,8 @@ Each sample is a standalone project under the `samples/` folder.
 Open any sample folder and read its local `README.md` (if present) for details on setup and usage.
 
 ## Samples
-voice1.png
-Invoice2.png
-samples
+
+- `samples/BlankProCodeAppTemplate` – A minimal starter template for building pro-code apps with the UiPath SDK. Includes React + TypeScript setup with Vite, Tailwind CSS styling, authentication flow with LoginScreen and Header components, and a ready-to-use `useAuth` hook. Perfect for starting new projects from scratch.
 - `samples/invoice-app` – Invoice-related sample app copied from `CodingProjects/Uipath Tasks/Invoice`
 - `samples/process-app` – Process app sample copied from `Target360App/uipath-typescript/samples/process-app`
 
@@ -22,4 +21,3 @@ samples
 4. Follow the instructions in the sample's `README.md` or `package.json` scripts to install dependencies and run it.
 
 This repo does not change the internal structure of the sample apps; it simply organizes them in one place.
-EOF
