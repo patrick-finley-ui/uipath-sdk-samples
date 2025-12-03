@@ -1,0 +1,993 @@
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import type { ProcessedClaim } from '../hooks/useClaims';
+
+interface ClaimDetailsProps {
+  selectedClaim: ProcessedClaim | null;
+  sdk: any; // UiPath SDK instance
+  onBack: () => void;
+}
+
+interface HitlTaskArguments {
+  Summary?: string;
+  EligibilityStatus?: boolean;
+  Calculation?: string;
+  Fraud_Residency_Risk?: string;
+  Fraud_Residency_Explanation?: string;
+  Fraud_Income_Risk?: string;
+  Fraud_Income_Explanation?: string;
+  filename?: string;
+  Fraud_Income_Percent?: number;
+}
+
+// Mock comment interface
+interface Comment {
+  id: string;
+  author: string;
+  timestamp: string;
+  text: string;
+}
+
+// Mock comments data
+const mockComments: Comment[] = [
+  {
+    id: '1',
+    author: 'John Smith',
+    timestamp: '2024-01-15 10:30 AM',
+    text: 'Address verification completed. All documents are in order.',
+  },
+  {
+    id: '2',
+    author: 'Jane Doe',
+    timestamp: '2024-01-15 2:45 PM',
+    text: 'Income documentation reviewed. Please verify the household size information.',
+  },
+];
+
+export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) => {
+  const [variablesData, setVariablesData] = useState<any>(null);
+  const [variablesError, setVariablesError] = useState<string | null>(null);
+  const [hitlData, setHitlData] = useState<HitlTaskArguments | null>(null);
+  const [taskLink, setTaskLink] = useState<string | null>(null);
+  const [isTaskPopupOpen, setIsTaskPopupOpen] = useState(false);
+  const [isLoadingExecution, setIsLoadingExecution] = useState(false);
+  const [activeDocumentTab, setActiveDocumentTab] = useState<'application' | 'id' | 'paystub'>('application');
+  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const [newComment, setNewComment] = useState('');
+  const [documentUrls, setDocumentUrls] = useState<{
+    application?: string;
+    id?: string;
+    paystub?: string;
+  }>({});
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [documentError, setDocumentError] = useState<string | null>(null);
+  const showDebugBox = import.meta.env.VITE_SHOW_DEBUG_BOX === 'true';
+
+  // Document bucket and folder configuration
+  const APPLICATION_BUCKET_ID = 56094;
+  const APPLICATION_FOLDER_ID = 2336471;
+  const APPLICATION_FILE_NAME = 'Adrian-MO.pdf';
+
+  const PAYSTUB_BUCKET_ID = 82886;
+  const PAYSTUB_FOLDER_ID = 2336471;
+  const PAYSTUB_FILE_NAME = 'Paystub_Adrian.jpg';
+
+  const ID_BUCKET_ID = 82528;
+  const ID_FOLDER_ID = 2336471;
+  const ID_FILE_NAME = 'DL_Adrian.jpg';
+
+  // Fetch execution history automatically when a claim is selected
+  useEffect(() => {
+    if (!selectedClaim?.rawData?.maestroProcessInstanceKey || !selectedClaim?.rawData?.FolderId) {
+      // Clear previous data
+      setHitlData(null);
+      setTaskLink(null);
+      setVariablesData(null);
+      setVariablesError(null);
+      return;
+    }
+
+    const fetchExecutionHistory = async () => {
+      try {
+        setIsLoadingExecution(true);
+        setVariablesError(null);
+        setHitlData(null);
+        setTaskLink(null);
+
+        // Fetch execution history
+        const executionHistory = await sdk.maestro.processes.instances.getExecutionHistory(
+          selectedClaim.rawData.maestroProcessInstanceKey,
+          selectedClaim.rawData.FolderId
+        );
+
+        console.log('Execution history:', executionHistory);
+
+        // Check if execution history has items property (pagination response)
+        const historyItems = Array.isArray(executionHistory)
+          ? executionHistory
+          : executionHistory?.items || [];
+
+        console.log('History items count:', historyItems.length);
+
+        // Look for task link where name = "Case Worker Review"
+        if (historyItems.length > 0) {
+          const taskActivity = historyItems.find((item: any) =>
+            item.name === 'Case Worker Review' && item.attributes?.actionCenterTaskLink
+          );
+
+          if (taskActivity) {
+            const link = taskActivity.attributes.actionCenterTaskLink;
+            console.log('Found task link:', link);
+            setTaskLink(link);
+          } else {
+            console.log('No task activity found with name="Case Worker Review" and actionCenterTaskLink');
+          }
+        }
+
+        // Fetch variables to get HITL data
+        const variables = await sdk.maestro.processes.instances.getVariables(
+          selectedClaim.rawData.maestroProcessInstanceKey,
+          selectedClaim.rawData.FolderId
+        );
+        console.log('Maestro variables response:', variables);
+
+        // Extract HITL task arguments from variables
+        // The response has an 'elements' array where we need to find the Activity_PeUITb element
+        if (variables?.elements && Array.isArray(variables.elements)) {
+          const hitlElement = variables.elements.find((element: any) =>
+            element.elementId === 'Activity_PeUITb' && element.inputs?.HitlTaskArguments
+          );
+
+          if (hitlElement && hitlElement.inputs?.HitlTaskArguments) {
+            console.log('Found HITL data in variables:', hitlElement.inputs.HitlTaskArguments);
+            setHitlData(hitlElement.inputs.HitlTaskArguments);
+          } else {
+            console.log('No HitlTaskArguments found in variables elements');
+          }
+        } else {
+          console.log('No elements array found in variables response');
+        }
+
+        // Store variables for debug panel if enabled
+        if (showDebugBox) {
+          setVariablesData(variables);
+        }
+      } catch (err) {
+        console.error('Error fetching process data:', err);
+        setVariablesError(err instanceof Error ? err.message : 'Failed to fetch process data');
+      } finally {
+        setIsLoadingExecution(false);
+      }
+    };
+
+    fetchExecutionHistory();
+  }, [selectedClaim, sdk, showDebugBox]);
+
+  // Fetch document URLs
+  const fetchDocumentUrls = async () => {
+    if (!selectedClaim) return;
+
+    try {
+      setLoadingDocuments(true);
+      setDocumentError(null);
+
+      // Fetch all three document URLs
+      const [applicationUrl, paystubUrl, idUrl] = await Promise.all([
+        sdk.buckets.getReadUri({
+          bucketId: APPLICATION_BUCKET_ID,
+          folderId: APPLICATION_FOLDER_ID,
+          path: `/${APPLICATION_FILE_NAME}`,
+        }),
+        sdk.buckets.getReadUri({
+          bucketId: PAYSTUB_BUCKET_ID,
+          folderId: PAYSTUB_FOLDER_ID,
+          path: `/${PAYSTUB_FILE_NAME}`,
+        }),
+        sdk.buckets.getReadUri({
+          bucketId: ID_BUCKET_ID,
+          folderId: ID_FOLDER_ID,
+          path: `/${ID_FILE_NAME}`,
+        }),
+      ]);
+
+      console.log('Document fetch responses:');
+      console.log('applicationUrl response:', applicationUrl);
+      console.log('paystubUrl response:', paystubUrl);
+      console.log('idUrl response:', idUrl);
+
+      // Handle both uppercase Uri and lowercase uri for backwards compatibility
+      const getUri = (response: any) => response.Uri || response.uri;
+
+      const applicationUri = getUri(applicationUrl);
+      const paystubUri = getUri(paystubUrl);
+      const idUri = getUri(idUrl);
+
+      console.log('Extracted URIs:');
+      console.log('application URI:', applicationUri);
+      console.log('paystub URI:', paystubUri);
+      console.log('id URI:', idUri);
+
+      setDocumentUrls({
+        application: applicationUri,
+        paystub: paystubUri,
+        id: idUri,
+      });
+
+      console.log('Document URLs set successfully:', {
+        application: applicationUri,
+        paystub: paystubUri,
+        id: idUri,
+      });
+    } catch (err) {
+      console.error('Error fetching document URLs:', err);
+      setDocumentError(err instanceof Error ? err.message : 'Failed to fetch documents');
+    } finally {
+      setLoadingDocuments(false);
+    }
+  };
+
+  // Fetch documents when a document tab is selected
+  useEffect(() => {
+    const needsFetch = !documentUrls[activeDocumentTab];
+
+    if (needsFetch && selectedClaim) {
+      fetchDocumentUrls();
+    }
+  }, [activeDocumentTab, selectedClaim]);
+
+  // Helper function to convert taskLink to embed format
+  const convertToEmbedUrl = (taskLink: string): string => {
+    const url = new URL(taskLink);
+    const pathParts = url.pathname.split('/').filter(part => part.length > 0);
+
+    const orgId = pathParts[0];
+    const tenantId = pathParts[1];
+
+    const actionsIndex = pathParts.findIndex(part => part === 'actions_');
+    const remainingPath = actionsIndex !== -1 ? pathParts.slice(actionsIndex).join('/') : pathParts.slice(2).join('/');
+
+    const pathWithCurrentTask = remainingPath.replace('actions_/tasks', 'actions_/current-task/tasks');
+
+    const embedPath = `/embed_/${orgId}/${tenantId}/${pathWithCurrentTask}`;
+
+    return `${url.origin}${embedPath}`;
+  };
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isTaskPopupOpen) {
+        setIsTaskPopupOpen(false);
+      }
+    };
+
+    if (isTaskPopupOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isTaskPopupOpen]);
+
+  // Handle adding new comment
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      const newCommentObj: Comment = {
+        id: Date.now().toString(),
+        author: 'Current User',
+        timestamp: new Date().toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        text: newComment.trim(),
+      };
+      setComments([...comments, newCommentObj]);
+      setNewComment('');
+    }
+  };
+
+  // Empty state - no claim selected
+  if (!selectedClaim) {
+    return (
+      <div className="bg-white shadow rounded-lg border border-gray-200 p-8">
+        <div className="flex items-center justify-center h-full text-center">
+          <div className="max-w-md mx-auto">
+            <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
+              <svg className="w-16 h-16 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Claim Details</h3>
+            <p className="text-gray-500 leading-relaxed">Select a claim from the grid to view detailed information and process data.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const hasProcessInstance = selectedClaim.rawData?.maestroProcessInstanceKey && selectedClaim.rawData?.FolderId;
+
+  return (
+    <>
+      <div className="h-full overflow-y-auto bg-gray-50">
+        {/* Breadcrumb Navigation */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Dashboard
+          </button>
+          <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+            <span>Claims Dashboard</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            <span className="text-gray-900 font-medium">{selectedClaim.applicantName}</span>
+          </div>
+        </div>
+
+        {/* Header Section */}
+        <div className="bg-white border-b border-gray-200 px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{selectedClaim.applicantName}</h1>
+              <p className="text-sm text-gray-500 mt-1">Claim ID: {selectedClaim.id}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span
+                className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium border ${
+                  selectedClaim.eligibilityStatus === 'Approved'
+                    ? 'bg-green-100 text-green-800 border-green-200'
+                    : selectedClaim.eligibilityStatus === 'Denied'
+                    ? 'bg-red-100 text-red-800 border-red-200'
+                    : selectedClaim.eligibilityStatus === 'Pending'
+                    ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                    : 'bg-blue-100 text-blue-800 border-blue-200'
+                }`}
+              >
+                {selectedClaim.eligibilityStatus}
+              </span>
+              {taskLink && (
+                <button
+                  onClick={() => setIsTaskPopupOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  View Task
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="p-6 space-y-6">
+          {/* Top Row: Key Details Card (Left) + AI Summary Card (Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Key Details Card */}
+            {/* Key Details Card */}
+            <div>
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Applicant Details</h2>
+              </div>
+              <div className="p-6 space-y-4">
+                {/* Contact Information */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Email</h4>
+                    <p className="text-sm text-gray-900">
+                      {selectedClaim.applicantName.toLowerCase().replace(/\s+/g, '.') + '@gmail.com'}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Phone Number</h4>
+                    <p className="text-sm text-gray-900">
+                      {(() => {
+                        const hash = selectedClaim.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                        const areaCode = 200 + (hash % 800);
+                        const exchange = 200 + ((hash * 7) % 800);
+                        const line = 1000 + ((hash * 13) % 9000);
+                        return `(${areaCode}) ${exchange}-${line}`;
+                      })()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div className="pt-4 border-t">
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">Address</h4>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-900">
+                      {selectedClaim.rawData?.AddressLine1 || 'No address provided'}
+                    </p>
+                    <p className="text-sm text-gray-900">
+                      {(() => {
+                        const hash = selectedClaim.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                        const cities = ['Springfield', 'Riverside', 'Oakland', 'Madison', 'Georgetown', 'Salem', 'Franklin', 'Clinton', 'Arlington', 'Fairview'];
+                        const states = ['CA', 'NY', 'TX', 'FL', 'MO', 'IL', 'PA', 'OH', 'GA', 'NC'];
+                        const city = cities[hash % cities.length];
+                        const state = states[hash % states.length];
+                        const zip = 10000 + (hash % 90000);
+                        return `${city}, ${state} ${zip}`;
+                      })()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Status and Verification */}
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Eligibility Status</h4>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                        selectedClaim.eligibilityStatus === 'Approved'
+                          ? 'bg-green-100 text-green-800 border-green-200'
+                          : selectedClaim.eligibilityStatus === 'Denied'
+                          ? 'bg-red-100 text-red-800 border-red-200'
+                          : selectedClaim.eligibilityStatus === 'Pending'
+                          ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                          : 'bg-blue-100 text-blue-800 border-blue-200'
+                      }`}
+                    >
+                      {selectedClaim.eligibilityStatus}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Caseworker</h4>
+                    <p className="text-sm text-gray-900">{selectedClaim.caseWorkerName}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Address Verified</h4>
+                    <div className="flex items-center">
+                      {selectedClaim.addressVerifiedFlag ? (
+                        <>
+                          <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span className="text-sm text-green-700 font-medium">Verified</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span className="text-sm text-red-700 font-medium">Not Verified</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Income Verified</h4>
+                    <div className="flex items-center">
+                      {selectedClaim.incomeVerifiedFlag ? (
+                        <>
+                          <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span className="text-sm text-green-700 font-medium">Verified</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span className="text-sm text-red-700 font-medium">Not Verified</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Information */}
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  {selectedClaim.rawData?.ApplicantIncomeText && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Reported Income (Monthly)</h4>
+                      <p className="text-sm text-gray-900 font-semibold">
+                        ${parseFloat(selectedClaim.rawData.ApplicantIncomeText).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                  {selectedClaim.rawData?.BenefitAmountMonthly && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefit Amount (Monthly)</h4>
+                      <p className="text-sm text-green-700 font-semibold">
+                        ${parseFloat(selectedClaim.rawData.BenefitAmountMonthly.toString()).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                  {selectedClaim.rawData?.ApplicantHouseholdSize && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Household Size</h4>
+                      <p className="text-sm text-gray-900">{selectedClaim.rawData.ApplicantHouseholdSize}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Dates */}
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Application Created</h4>
+                    <p className="text-sm text-gray-900">
+                      {new Date(selectedClaim.applicationCreationTime).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                  {selectedClaim.rawData?.UpdateTime && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Last Updated</h4>
+                      <p className="text-sm text-gray-900">
+                        {new Date(selectedClaim.rawData.UpdateTime).toLocaleString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  {selectedClaim.rawData?.BenefitStartDate && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefits Start Date</h4>
+                      <p className="text-sm text-gray-900">
+                        {new Date(selectedClaim.rawData.BenefitStartDate.replace(/"/g, '')).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  {selectedClaim.rawData?.BenefitEndDate && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefits End Date</h4>
+                      <p className="text-sm text-gray-900">
+                        {new Date(selectedClaim.rawData.BenefitEndDate.replace(/"/g, '')).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Eligibility Reason */}
+                {selectedClaim.rawData?.EligibilityReason && (
+                  <div className="pt-4 border-t">
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Eligibility Reason</h4>
+                    <p className="text-sm text-gray-700 leading-relaxed">{selectedClaim.rawData.EligibilityReason}</p>
+                  </div>
+                )}
+              </div>
+              </div>
+                 {/* Documents Card */}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-6">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
+              </div>
+
+              {/* Document Tabs */}
+              <div className="border-b border-gray-200">
+                <div className="flex">
+                  <button
+                    onClick={() => setActiveDocumentTab('application')}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeDocumentTab === 'application'
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Application
+                  </button>
+                  <button
+                    onClick={() => setActiveDocumentTab('id')}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeDocumentTab === 'id'
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    ID Document
+                  </button>
+                  <button
+                    onClick={() => setActiveDocumentTab('paystub')}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeDocumentTab === 'paystub'
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Paystub
+                  </button>
+                </div>
+              </div>
+
+              {/* Document Viewer */}
+              <div className="p-6">
+                {loadingDocuments && (
+                  <div className="bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                      <p className="text-sm text-gray-600">Loading document...</p>
+                    </div>
+                  </div>
+                )}
+
+                {documentError && !loadingDocuments && (
+                  <div className="bg-red-50 rounded-lg border-2 border-red-200 p-8 text-center">
+                    <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <h4 className="text-lg font-semibold text-red-700 mb-2">Error Loading Document</h4>
+                    <p className="text-sm text-red-600">{documentError}</p>
+                  </div>
+                )}
+
+                {!loadingDocuments && !documentError && documentUrls[activeDocumentTab] && (
+                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    {activeDocumentTab === 'application' && documentUrls.application && (
+                      <iframe
+                        src={documentUrls.application}
+                        className="w-full h-[800px]"
+                        title="Application Document"
+                      />
+                    )}
+                    {activeDocumentTab === 'id' && documentUrls.id && (
+                      <img
+                        src={documentUrls.id}
+                        alt="ID Document"
+                        className="w-full h-auto"
+                      />
+                    )}
+                    {activeDocumentTab === 'paystub' && documentUrls.paystub && (
+                      <img
+                        src={documentUrls.paystub}
+                        alt="Paystub Document"
+                        className="w-full h-auto"
+                      />
+                    )}
+                  </div>
+                )}
+
+                {!loadingDocuments && !documentError && !documentUrls[activeDocumentTab] && (
+                  <div className="bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
+                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h4 className="text-lg font-semibold text-gray-700 mb-2">
+                      {activeDocumentTab === 'application' && 'Application Form'}
+                      {activeDocumentTab === 'id' && 'ID Document'}
+                      {activeDocumentTab === 'paystub' && 'Income Paystub'}
+                    </h4>
+                    <p className="text-sm text-gray-500">No document available</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            </div>
+            {/* AI Summary Card */}
+            <div>
+
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+                <h2 className="text-lg font-semibold text-gray-900">AI Agent Review</h2>
+              </div>
+
+              <div className="p-6 bg-gradient-to-br from-purple-50/30 to-indigo-50/30">
+                {isLoadingExecution ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
+                      <p className="text-gray-600 text-sm">Loading AI review...</p>
+                    </div>
+                  </div>
+                ) : variablesError ? (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="font-semibold text-red-800 text-sm">Error Loading AI Review</p>
+                    <p className="text-sm text-red-700 mt-1">{variablesError}</p>
+                  </div>
+                ) : hitlData ? (
+                  <div className="space-y-4">
+                    {/* Summary */}
+                    {hitlData.Summary && (
+                      <div className="bg-white rounded-lg p-4 border border-purple-200 shadow-sm">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Summary</h4>
+                        <p className="text-sm text-gray-900 leading-relaxed">{hitlData.Summary}</p>
+                      </div>
+                    )}
+
+                    {/* Eligibility and Calculation */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white rounded-lg p-4 border border-purple-200 shadow-sm">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Eligibility</h4>
+                        <div className="flex items-center">
+                          {hitlData.EligibilityStatus ? (
+                            <>
+                              <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              <span className="text-sm font-medium text-green-700">Eligible</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                              </svg>
+                              <span className="text-sm font-medium text-red-700">Not Eligible</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      {hitlData.Calculation && (
+                        <div className="bg-white rounded-lg p-4 border border-purple-200 shadow-sm">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-2">Benefit Amount</h4>
+                          <p className="text-lg font-bold text-purple-700">{hitlData.Calculation}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Fraud Assessment */}
+                    {(hitlData.Fraud_Residency_Risk || hitlData.Fraud_Income_Risk) && (
+                      <div className="space-y-3">
+                        {hitlData.Fraud_Residency_Risk && (
+                          <div className="bg-white rounded-lg p-4 border border-purple-200 shadow-sm">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="text-sm font-semibold text-gray-700">Residency Verification</h4>
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                hitlData.Fraud_Residency_Risk.toLowerCase() === 'proceed'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {hitlData.Fraud_Residency_Risk}
+                              </span>
+                            </div>
+                            {hitlData.Fraud_Residency_Explanation && (
+                              <p className="text-sm text-gray-700 leading-relaxed">{hitlData.Fraud_Residency_Explanation}</p>
+                            )}
+                          </div>
+                        )}
+
+                        {hitlData.Fraud_Income_Risk && (
+                          <div className="bg-white rounded-lg p-4 border border-purple-200 shadow-sm">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="text-sm font-semibold text-gray-700">Income Verification</h4>
+                              <div className="flex items-center gap-2">
+                                {hitlData.Fraud_Income_Percent !== undefined && hitlData.Fraud_Income_Percent !== 0 && (
+                                  <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    {hitlData.Fraud_Income_Percent}% variance
+                                  </span>
+                                )}
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  hitlData.Fraud_Income_Risk.toLowerCase() === 'valid'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {hitlData.Fraud_Income_Risk}
+                                </span>
+                              </div>
+                            </div>
+                            {hitlData.Fraud_Income_Explanation && (
+                              <p className="text-sm text-gray-700 leading-relaxed">{hitlData.Fraud_Income_Explanation}</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Source Document */}
+                    {hitlData.filename && (
+                      <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Source: {hitlData.filename}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <h4 className="font-semibold text-blue-900 text-sm">No AI Review Available</h4>
+                      <p className="text-blue-700 text-xs">AI review data not yet generated</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              </div>
+               {/* Comments Section */}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-6">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Comments</h2>
+              </div>
+
+              <div className="p-6">
+                {/* Comments List */}
+                <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-gray-900">{comment.author}</span>
+                        <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                      </div>
+                      <p className="text-sm text-gray-700">{comment.text}</p>
+                    </div>
+                  ))}
+                  {comments.length === 0 && (
+                    <div className="text-center py-8">
+                      <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      <p className="text-sm text-gray-500">No comments yet</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Add Comment Form */}
+                <div className="border-t pt-4">
+                  <label htmlFor="new-comment" className="block text-sm font-medium text-gray-700 mb-2">
+                    Add Comment
+                  </label>
+                  <textarea
+                    id="new-comment"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                    placeholder="Enter your comment..."
+                  />
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      onClick={handleAddComment}
+                      disabled={!newComment.trim()}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Add Comment
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+</div>
+           
+          </div>
+
+          {/* Bottom Row: Documents (Left) + Comments (Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Documents Section */}
+            
+
+          
+          </div>
+
+          {/* Debug Box */}
+          {showDebugBox && variablesData && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded space-y-3">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div className="ml-3 flex-1">
+                  <h3 className="text-sm font-medium text-yellow-800 mb-2">Debug: Maestro Process Data</h3>
+                  <div className="text-xs font-mono space-y-1 mb-3">
+                    <div className="flex gap-2">
+                      <span className="text-yellow-700 font-semibold">Process Key:</span>
+                      <span className="text-yellow-900">{selectedClaim.rawData?.maestroProcessInstanceKey || 'Not set'}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="text-yellow-700 font-semibold">Folder ID:</span>
+                      <span className="text-yellow-900">{selectedClaim.rawData?.FolderId || 'Not set'}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-yellow-800 font-semibold">Maestro Process Variables</p>
+                    <button
+                      onClick={() => setVariablesData(null)}
+                      className="text-yellow-600 hover:text-yellow-800 text-xs font-medium"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div className="bg-yellow-100 border border-yellow-300 rounded p-3 max-h-96 overflow-auto">
+                    <pre className="text-xs text-yellow-900 whitespace-pre-wrap break-words">
+                      {JSON.stringify(variablesData, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* No Process Instance Message */}
+          {!hasProcessInstance && (
+            <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-semibold text-blue-900">No Process Instance</h4>
+                <p className="text-blue-700 text-sm">This claim does not have an associated Maestro process instance</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Task Popup */}
+      {isTaskPopupOpen && taskLink &&
+        createPortal(
+          <div
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200"
+            onClick={() => setIsTaskPopupOpen(false)}
+          >
+            <div
+              className="bg-white rounded-lg shadow-2xl w-[90vw] h-[95vh] flex flex-col animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
+                <h3 className="text-lg font-semibold text-gray-900">Task Details</h3>
+                <button
+                  onClick={() => setIsTaskPopupOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-200"
+                  aria-label="Close modal (ESC)"
+                  title="Close (ESC)"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex-1 p-4 rounded-b-lg">
+                <iframe
+                  src={convertToEmbedUrl(taskLink)}
+                  className="w-full h-full rounded border-0"
+                  title="Task Details"
+                />
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      }
+    </>
+  );
+};
