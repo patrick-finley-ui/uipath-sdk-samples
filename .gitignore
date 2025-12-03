@@ -70,6 +70,11 @@ web_modules/
 .env.*
 !.env.example
 
+# UiPath auth and package artifacts
+*.auth.json
+*.auth
+*.nupkg
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
