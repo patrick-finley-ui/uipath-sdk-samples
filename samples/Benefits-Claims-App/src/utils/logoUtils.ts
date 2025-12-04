@@ -9,7 +9,7 @@ const resolveAssetUrl = (url: string) => {
 };
 
 // Default URL (fallback if env vars not set)
-const DEFAULT_UIPATH_URL = 'https://companieslogo.com/img/orig/PATH.D-e3f55f9c.png?t=1757051310';
+const DEFAULT_UIPATH_URL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/UiPath_2021.svg/320px-UiPath_2021.svg.png';
 
 /**
  * Get logo sources based on environment configuration

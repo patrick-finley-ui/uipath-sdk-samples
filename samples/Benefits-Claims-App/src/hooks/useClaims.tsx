@@ -115,27 +115,3 @@ function extractNameFromEmail(email: string): string {
     .join(' ');
 }
 
-// Helper function to determine eligibility status
-function determineEligibilityStatus(
-  addressVerified: boolean,
-  income: number
-): 'Pending' | 'Approved' | 'Denied' | 'Under Review' {
-  if (!addressVerified) {
-    return 'Pending';
-  }
-
-  if (income <= 0) {
-    return 'Under Review';
-  }
-
-  // Simple income threshold for SNAP eligibility
-  const INCOME_THRESHOLD = 30000;
-
-  if (income < INCOME_THRESHOLD) {
-    return 'Approved';
-  } else if (income >= INCOME_THRESHOLD && income < 50000) {
-    return 'Under Review';
-  } else {
-    return 'Denied';
-  }
-}

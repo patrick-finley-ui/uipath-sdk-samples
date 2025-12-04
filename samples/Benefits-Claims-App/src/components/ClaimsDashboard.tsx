@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { StartStrategy, JobPriority } from '@uipath/uipath-typescript';
 import { DebugBox } from './layout/DebugBox';
 
-const PROCESS_KEY = '1333404'; // Can also use processKey from environment
+const PROCESS_KEY = 'd0d245fb-a685-4784-9320-5de1601d3463'; // Can also use processKey from environment
 const FOLDER_ID = 2336471;
 const SHOW_DEBUG_BOX = import.meta.env.VITE_SHOW_DEBUG_BOX === 'true';
 

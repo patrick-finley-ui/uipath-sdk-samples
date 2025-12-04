@@ -15,7 +15,7 @@ type SortDirection = 'asc' | 'desc';
 
 const PROCESS_KEY = '1333404';
 
-export const ClaimsDataGrid = ({ claims, onClaimSelect, selectedClaim, onRefresh, isRefreshing, sdk }: ClaimsDataGridProps) => {
+export const ClaimsDataGrid = ({ claims, onClaimSelect, selectedClaim: _selectedClaim, onRefresh, isRefreshing, sdk: _sdk }: ClaimsDataGridProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('applicationCreationTime');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');

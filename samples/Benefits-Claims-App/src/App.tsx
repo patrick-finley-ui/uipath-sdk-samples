@@ -28,7 +28,21 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return <LoginScreen />;
+    return (
+      <LoginScreen
+        customerLogo="https://www.usda.gov/themes/custom/usda_uswds/img/USDA_logo_640.png"
+        customerName="US Department of Agriculture"
+        appName="SNAP Benefits Applications Dashboard"
+        appDescription="Automated Benefits Processing & Management"
+        detailedDescription="Access the SNAP benefits processing system to manage, review, and approve benefits applications."
+        systemFeatures={[
+          'Real-time application tracking',
+          'AI-powered eligibility verification',
+          'Automated document processing',
+          'Fraud detection and prevention',
+        ]}
+      />
+    )
   }
 
   return <ClaimsDashboard />;
