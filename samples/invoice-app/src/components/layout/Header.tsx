@@ -22,7 +22,7 @@ export const Header = () => {
           </div>
 
           {/* Right: UiPath Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center bg-white">
             <img
               src={uipathLogoSrc}
               alt="UiPath"

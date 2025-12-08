@@ -1,9 +1,8 @@
 import { useAuth } from '../hooks/useAuth';
-import { getLogoUrls } from '../utils/logoUtils';
 
 export const Header = () => {
   const { isAuthenticated, logout } = useAuth();
-  const { uipathLogoSrc } = getLogoUrls();
+ 
 
   return (
     <header className="bg-usda-green shadow-lg border-b border-gray-200">
@@ -33,7 +32,7 @@ export const Header = () => {
             {/* UiPath Logo */}
             <div className="flex items-center px-3 py-1 rounded-lg">
               <img
-                src={uipathLogoSrc}
+                src={"https://companieslogo.com/img/orig/PATH.D-e3f55f9c.png?t=1757051310"}
                 alt="UiPath"
                 className="h-8 w-auto object-contain"
               />

@@ -161,6 +161,7 @@ export const ClaimsDashboard = () => {
           selectedClaim={selectedClaim}
           sdk={sdk}
           onBack={handleBackToDashboard}
+          onRefresh={refetch}
         />
       </div>
     );

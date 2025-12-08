@@ -2,10 +2,33 @@ import { useAuth } from '../hooks/useAuth';
 import { getLogoUrls } from '../utils/logoUtils';
 import { LoginInstructions } from './ui/LoginInstructions';
 
-export const LoginScreen = () => {
+export interface LoginScreenProps {
+  customerLogo?: string;
+  customerName?: string;
+  appName?: string;
+  appDescription?: string;
+  systemFeatures?: string[];
+  detailedDescription?: string;
+}
+
+export const LoginScreen = ({
+  customerLogo,
+  customerName = 'UiPath',
+  appName = 'Application Dashboard',
+  appDescription = 'Automated Workflow Management',
+  systemFeatures = [
+    'Real-time processing tracking',
+    'Document verification status',
+    'Automated processing workflows',
+    'Analytics and reporting',
+  ],
+  detailedDescription,
+}: LoginScreenProps = {}) => {
   const { login, error, isLoading } = useAuth();
   const { dodLogoSrc, uipathLogoSrc } = getLogoUrls();
 
+  // Use DoD logo from local assets if no customer logo provided
+  const displayLogo = customerLogo || dodLogoSrc;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
@@ -13,28 +36,37 @@ export const LoginScreen = () => {
         <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
           {/* Logo and Title */}
           <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-white p-4 rounded-full">
-                
-               <div className="flex items-center">
-            <img
-              src={uipathLogoSrc}
-              alt="UiPath"
-              className="h-28 w-auto object-contain"
-            />
-          </div>
+            {/* Only show customer logo if provided */}
+            {displayLogo && (
+              <div className="flex justify-center mb-4">
+                <div className="bg-white p-4 rounded-full">
+                  <div className="flex items-center">
+                    <img
+                      src={displayLogo}
+                      alt={customerName}
+                      className="h-28 w-auto object-contain"
+                      onError={(e) => {
+                        console.error('Failed to load logo:', displayLogo);
+                        // Hide the image if it fails to load
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">Invoice Processing App</h2>
-            <p className="text-gray-600 mt-2">Automated Invoice Management & Verification</p>
+            )}
+            <h2 className="text-3xl font-bold text-gray-900">{appName}</h2>
+            <p className="text-gray-600 mt-2">{appDescription}</p>
           </div>
 
           {/* Description */}
-          <div className="bg-uipath-orange-subtle rounded-lg p-4 border border-uipath-orange/20">
-            <p className="text-sm text-gray-700">
-              Access the invoice processing system to manage, verify, and track invoice documents.
-            </p>
-          </div>
+          {detailedDescription && (
+            <div className="bg-uipath-orange-subtle rounded-lg p-4 border border-uipath-orange/20">
+              <p className="text-sm text-gray-700">
+                {detailedDescription}
+              </p>
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -68,20 +100,20 @@ export const LoginScreen = () => {
               </>
             )}
           </button>
-<div className="flex justify-center mb-4">
-              <div className="bg-white p-4 rounded-full">
-                
-               <div className="flex items-center">
-            <img
-              src={dodLogoSrc}
-              alt="Department of Defense"
-              className="h-28 w-auto object-contain"
-            />
-          </div>
-              </div>
+
+          {/* UiPath Logo */}
+          <div className="flex justify-center pt-4 border-t border-gray-100">
+            <div className="bg-white rounded-lg">
+              <img
+                src={uipathLogoSrc}
+                alt="UiPath"
+                className="h-28 w-auto"
+              />
             </div>
+          </div>
+
           {/* Footer Info */}
-          <div className="text-center text-xs text-gray-500 pt-4 border-t border-gray-100">
+          <div className="text-center text-xs text-gray-500 pt-2">
             <p>Powered by UiPath TypeScript SDK</p>
             <p className="mt-1">Secure access for authorized users only</p>
           </div>
@@ -95,10 +127,9 @@ export const LoginScreen = () => {
           <div className="bg-white rounded-lg p-4 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-700 mb-2">System Features</h3>
             <ul className="text-xs text-gray-600 space-y-1">
-              <li>Real-time invoice tracking</li>
-              <li>Document verification status</li>
-              <li>Automated processing workflows</li>
-              <li>Analytics and reporting</li>
+              {systemFeatures.map((feature, index) => (
+                <li key={index}>{feature}</li>
+              ))}
             </ul>
           </div>
         </div>

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { ProcessedClaim } from '../hooks/useClaims';
+import { DocumentViewer } from './ui/DocumentViewer';
 
 interface ClaimDetailsProps {
   selectedClaim: ProcessedClaim | null;
   sdk: any; // UiPath SDK instance
   onBack: () => void;
+  onRefresh?: () => void;
 }
 
 interface HitlTaskArguments {
@@ -44,7 +46,7 @@ const mockComments: Comment[] = [
   },
 ];
 
-export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) => {
+export const ClaimDetails = ({ selectedClaim, sdk, onBack, onRefresh }: ClaimDetailsProps) => {
   const [variablesData, setVariablesData] = useState<any>(null);
   const [variablesError, setVariablesError] = useState<string | null>(null);
   const [hitlData, setHitlData] = useState<HitlTaskArguments | null>(null);
@@ -61,7 +63,28 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
   }>({});
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [documentError, setDocumentError] = useState<string | null>(null);
+  const [multiViewMode, setMultiViewMode] = useState(false);
+  const [selectedDocumentTabs, setSelectedDocumentTabs] = useState<('application' | 'id' | 'paystub')[]>(['application']);
   const showDebugBox = import.meta.env.VITE_SHOW_DEBUG_BOX === 'true';
+
+  // Maestro process configuration
+  const PROCESS_KEY = '1333404';
+
+  // Open Maestro process in new tab
+  const openMaestroProcess = () => {
+    if (!selectedClaim) return;
+
+    const maestroKey = selectedClaim.rawData.maestroProcessInstanceKey;
+    const folderId = selectedClaim.rawData.FolderId;
+
+    if (!maestroKey || !folderId) {
+      console.error('Missing maestroProcessInstanceKey or FolderId');
+      return;
+    }
+
+    const url = `https://staging.uipath.com/uipathlabs/Playground/maestro_/processes/${PROCESS_KEY}/instances/${maestroKey}?folderKey=${folderId}`;
+    window.open(url, '_blank');
+  };
 
   // Document bucket and folder configuration
   const APPLICATION_BUCKET_ID = 56094;
@@ -226,14 +249,12 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
     }
   };
 
-  // Fetch documents when a document tab is selected
+  // Fetch documents when a claim is selected (not when tabs are clicked)
   useEffect(() => {
-    const needsFetch = !documentUrls[activeDocumentTab];
-
-    if (needsFetch && selectedClaim) {
+    if (selectedClaim) {
       fetchDocumentUrls();
     }
-  }, [activeDocumentTab, selectedClaim]);
+  }, [selectedClaim]);
 
   // Helper function to convert taskLink to embed format
   const convertToEmbedUrl = (taskLink: string): string => {
@@ -272,7 +293,7 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
     if (newComment.trim()) {
       const newCommentObj: Comment = {
         id: Date.now().toString(),
-        author: 'Current User',
+        author: selectedClaim?.caseWorkerName || 'Pat Finley',
         timestamp: new Date().toLocaleString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -352,6 +373,18 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
               >
                 {selectedClaim.eligibilityStatus}
               </span>
+              {selectedClaim.rawData.maestroProcessInstanceKey && selectedClaim.rawData.FolderId && (
+                <button
+                  onClick={openMaestroProcess}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
+                  title="Open in Maestro"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Maestro
+                </button>
+              )}
               {taskLink && (
                 <button
                   onClick={() => setIsTaskPopupOpen(true)}
@@ -361,6 +394,18 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                   View Task
+                </button>
+              )}
+              {onRefresh && (
+                <button
+                  onClick={onRefresh}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 hover:text-orange-900 rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
+                  title="Refresh Data"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Refresh
                 </button>
               )}
             </div>
@@ -422,6 +467,87 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
                   </div>
                 </div>
 
+
+                {/* Financial Information */}
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  {selectedClaim.rawData?.ApplicantIncomeText && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Reported Income (Monthly)</h4>
+                      <p className="text-sm text-gray-900 font-semibold">
+                        ${parseFloat(selectedClaim.rawData.ApplicantIncomeText).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                  {selectedClaim.rawData?.BenefitAmountMonthly && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefit Amount (Monthly)</h4>
+                      <p className="text-sm text-green-700 font-semibold">
+                        ${parseFloat(selectedClaim.rawData.BenefitAmountMonthly.toString()).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                  {selectedClaim.rawData?.ApplicantHouseholdSize && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Household Size</h4>
+                      <p className="text-sm text-gray-900">{selectedClaim.rawData.ApplicantHouseholdSize}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Dates */}
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">Application Created</h4>
+                    <p className="text-sm text-gray-900">
+                      {new Date(selectedClaim.applicationCreationTime).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                  {selectedClaim.rawData?.UpdateTime && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Last Updated</h4>
+                      <p className="text-sm text-gray-900">
+                        {new Date(selectedClaim.rawData.UpdateTime).toLocaleString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  {selectedClaim.rawData?.BenefitStartDate && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefits Start Date</h4>
+                      <p className="text-sm text-gray-900">
+                        {new Date(selectedClaim.rawData.BenefitStartDate.replace(/"/g, '')).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  {selectedClaim.rawData?.BenefitEndDate && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefits End Date</h4>
+                      <p className="text-sm text-gray-900">
+                        {new Date(selectedClaim.rawData.BenefitEndDate.replace(/"/g, '')).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  </div>
+                  
                 {/* Status and Verification */}
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div>
@@ -502,86 +628,6 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
                   </div>
                 </div>
 
-                {/* Financial Information */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                  {selectedClaim.rawData?.ApplicantIncomeText && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Reported Income (Monthly)</h4>
-                      <p className="text-sm text-gray-900 font-semibold">
-                        ${parseFloat(selectedClaim.rawData.ApplicantIncomeText).toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-                  {selectedClaim.rawData?.BenefitAmountMonthly && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefit Amount (Monthly)</h4>
-                      <p className="text-sm text-green-700 font-semibold">
-                        ${parseFloat(selectedClaim.rawData.BenefitAmountMonthly.toString()).toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-                  {selectedClaim.rawData?.ApplicantHouseholdSize && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Household Size</h4>
-                      <p className="text-sm text-gray-900">{selectedClaim.rawData.ApplicantHouseholdSize}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Dates */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500 mb-1">Application Created</h4>
-                    <p className="text-sm text-gray-900">
-                      {new Date(selectedClaim.applicationCreationTime).toLocaleString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                  </div>
-                  {selectedClaim.rawData?.UpdateTime && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Last Updated</h4>
-                      <p className="text-sm text-gray-900">
-                        {new Date(selectedClaim.rawData.UpdateTime).toLocaleString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
-                    </div>
-                  )}
-                  {selectedClaim.rawData?.BenefitStartDate && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefits Start Date</h4>
-                      <p className="text-sm text-gray-900">
-                        {new Date(selectedClaim.rawData.BenefitStartDate.replace(/"/g, '')).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </p>
-                    </div>
-                  )}
-                  {selectedClaim.rawData?.BenefitEndDate && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Benefits End Date</h4>
-                      <p className="text-sm text-gray-900">
-                        {new Date(selectedClaim.rawData.BenefitEndDate.replace(/"/g, '')).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
                 {/* Eligibility Reason */}
                 {selectedClaim.rawData?.EligibilityReason && (
                   <div className="pt-4 border-t">
@@ -591,10 +637,24 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
                 )}
               </div>
               </div>
-                 {/* Documents Card */}
+                 {/* Documents Card - Normal Mode (Left Column) */}
+            {!multiViewMode && (
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-6">
-              <div className="px-6 py-4 border-b border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
+                <button
+                  onClick={() => {
+                    setMultiViewMode(true);
+                    setSelectedDocumentTabs(['application', 'id', 'paystub']);
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  title="Enable Multi-View Mode"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  Multi-View
+                </button>
               </div>
 
               {/* Document Tabs */}
@@ -657,10 +717,12 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
                 {!loadingDocuments && !documentError && documentUrls[activeDocumentTab] && (
                   <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                     {activeDocumentTab === 'application' && documentUrls.application && (
-                      <iframe
-                        src={documentUrls.application}
-                        className="w-full h-[800px]"
+                      <DocumentViewer
+                        documentUrl={documentUrls.application}
+                        loading={loadingDocuments}
+                        error={documentError}
                         title="Application Document"
+                        subtitle="View Application PDF"
                       />
                     )}
                     {activeDocumentTab === 'id' && documentUrls.id && (
@@ -695,15 +757,25 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
                 )}
               </div>
             </div>
+            )}
             </div>
             {/* AI Summary Card */}
             <div>
 
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+              <button
+                onClick={() => setMultiViewMode(false)}
+                className={`w-full px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50 flex justify-between items-center ${multiViewMode ? 'hover:bg-purple-100 cursor-pointer' : ''}`}
+              >
                 <h2 className="text-lg font-semibold text-gray-900">AI Agent Review</h2>
-              </div>
+                {multiViewMode && (
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                )}
+              </button>
 
+            
               <div className="p-6 bg-gradient-to-br from-purple-50/30 to-indigo-50/30">
                 {isLoadingExecution ? (
                   <div className="flex items-center justify-center py-8">
@@ -829,13 +901,23 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
                   </div>
                 )}
               </div>
+              
               </div>
                {/* Comments Section */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-6">
-              <div className="px-6 py-4 border-b border-gray-200">
+              <button
+                onClick={() => setMultiViewMode(false)}
+                className={`w-full px-6 py-4 border-b border-gray-200 flex justify-between items-center ${multiViewMode ? 'hover:bg-gray-50 cursor-pointer' : ''}`}
+              >
                 <h2 className="text-lg font-semibold text-gray-900">Comments</h2>
-              </div>
+                {multiViewMode && (
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                )}
+              </button>
 
+              {!multiViewMode && (
               <div className="p-6">
                 {/* Comments List */}
                 <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
@@ -882,18 +964,170 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack }: ClaimDetailsProps) 
                   </div>
                 </div>
               </div>
+              )}
             </div>
 </div>
-           
+
           </div>
 
-          {/* Bottom Row: Documents (Left) + Comments (Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Documents Section */}
-            
+          {/* Multi-View Documents Card - Full Width Below Grid */}
+          {multiViewMode && (
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
+                <button
+                  onClick={() => {
+                    setMultiViewMode(false);
+                    setActiveDocumentTab(selectedDocumentTabs[0] || 'application');
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-orange-100 text-orange-800 hover:bg-orange-200"
+                  title="Disable Multi-View Mode"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  Multi-View Active
+                </button>
+              </div>
 
-          
-          </div>
+              {/* Document Tabs */}
+              <div className="border-b border-gray-200">
+                <div className="flex">
+                  <button
+                    onClick={() => {
+                      if (selectedDocumentTabs.includes('application')) {
+                        if (selectedDocumentTabs.length > 1) {
+                          setSelectedDocumentTabs(selectedDocumentTabs.filter(t => t !== 'application'));
+                        }
+                      } else {
+                        if (selectedDocumentTabs.length < 3) {
+                          setSelectedDocumentTabs([...selectedDocumentTabs, 'application']);
+                        }
+                      }
+                    }}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      selectedDocumentTabs.includes('application')
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Application
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (selectedDocumentTabs.includes('id')) {
+                        if (selectedDocumentTabs.length > 1) {
+                          setSelectedDocumentTabs(selectedDocumentTabs.filter(t => t !== 'id'));
+                        }
+                      } else {
+                        if (selectedDocumentTabs.length < 3) {
+                          setSelectedDocumentTabs([...selectedDocumentTabs, 'id']);
+                        }
+                      }
+                    }}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      selectedDocumentTabs.includes('id')
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    ID Document
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (selectedDocumentTabs.includes('paystub')) {
+                        if (selectedDocumentTabs.length > 1) {
+                          setSelectedDocumentTabs(selectedDocumentTabs.filter(t => t !== 'paystub'));
+                        }
+                      } else {
+                        if (selectedDocumentTabs.length < 3) {
+                          setSelectedDocumentTabs([...selectedDocumentTabs, 'paystub']);
+                        }
+                      }
+                    }}
+                    className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      selectedDocumentTabs.includes('paystub')
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    Paystub
+                  </button>
+                </div>
+              </div>
+
+              {/* Document Viewer - Multi-Column Layout */}
+              <div className="p-6 flex gap-4">
+                {selectedDocumentTabs.map((tabId) => (
+                  <div
+                    key={tabId}
+                    className="flex-1 min-w-0"
+                  >
+                    {loadingDocuments && (
+                      <div className="bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
+                        <div className="flex flex-col items-center">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                          <p className="text-sm text-gray-600">Loading document...</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {documentError && !loadingDocuments && (
+                      <div className="bg-red-50 rounded-lg border-2 border-red-200 p-8 text-center">
+                        <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <h4 className="text-lg font-semibold text-red-700 mb-2">Error Loading Document</h4>
+                        <p className="text-sm text-red-600">{documentError}</p>
+                      </div>
+                    )}
+
+                    {!loadingDocuments && !documentError && documentUrls[tabId] && (
+                      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        {tabId === 'application' && documentUrls.application && (
+                          <DocumentViewer
+                            documentUrl={documentUrls.application}
+                            loading={loadingDocuments}
+                            error={documentError}
+                            title="Application Document"
+                            subtitle="View Application PDF"
+                          />
+                        )}
+                        {tabId === 'id' && documentUrls.id && (
+                          <img
+                            src={documentUrls.id}
+                            alt="ID Document"
+                            className="w-full h-auto"
+                          />
+                        )}
+                        {tabId === 'paystub' && documentUrls.paystub && (
+                          <img
+                            src={documentUrls.paystub}
+                            alt="Paystub Document"
+                            className="w-full h-auto"
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    {!loadingDocuments && !documentError && !documentUrls[tabId] && (
+                      <div className="bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
+                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h4 className="text-lg font-semibold text-gray-700 mb-2">
+                          {tabId === 'application' && 'Application Form'}
+                          {tabId === 'id' && 'ID Document'}
+                          {tabId === 'paystub' && 'Income Paystub'}
+                        </h4>
+                        <p className="text-sm text-gray-500">No document available</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Debug Box */}
           {showDebugBox && variablesData && (

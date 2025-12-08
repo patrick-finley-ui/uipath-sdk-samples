@@ -40,7 +40,20 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return <LoginScreen />
+    return (
+      <LoginScreen
+        customerName="Department of Defense"
+        appName="Invoice Processing Dashboard"
+        appDescription="Automated Invoice Management"
+        detailedDescription="Access the invoice processing system to manage, verify, and track invoice documents."
+        systemFeatures={[
+          'Real-time invoice tracking',
+          'Document verification status',
+          'Automated processing workflows',
+          'Analytics and reporting',
+        ]}
+      />
+    )
   }
 
   if (!sdk) {

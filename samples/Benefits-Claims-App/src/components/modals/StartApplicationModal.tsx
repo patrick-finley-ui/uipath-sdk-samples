@@ -255,6 +255,7 @@ export const StartApplicationModal = ({
               onChange={(e) => setCaseWorkerEmail(e.target.value)}
               placeholder="caseworker@agency.gov"
               disabled={isLoading}
+              autoComplete="email"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <p className="mt-2 text-xs text-gray-500">Enter the caseworker email address for this application</p>
