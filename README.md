@@ -10,8 +10,9 @@ Open any sample folder and read its local `README.md` (if present) for details o
 ## Samples
 
 - `samples/BlankProCodeAppTemplate` – A minimal starter template for building pro-code apps with the UiPath SDK. Includes React + TypeScript setup with Vite, Tailwind CSS styling, authentication flow with LoginScreen and Header components, and a ready-to-use `useAuth` hook. Perfect for starting new projects from scratch.
-- `samples/invoice-app` – Invoice-related sample app copied from `CodingProjects/Uipath Tasks/Invoice`
-- `samples/process-app` – Process app sample copied from `Target360App/uipath-typescript/samples/process-app`
+- `samples/invoice-app` – Invoice-related sample app copied from `samples/invoice-app`. Showcases an invoice processing dashboard for DoD
+- `samples/Benefits-Claims-App` – SNAP benefits application processing app.
+- `samples/process-app` – Process app sample copied from SDK
 
 ## How SEs should use this repo
 
