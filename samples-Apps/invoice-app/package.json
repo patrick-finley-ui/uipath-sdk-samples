@@ -1,0 +1,35 @@
+{
+  "name": "invoice",
+  "version": "1.0.0",
+  "description": "Invoice Processing App using UiPath Data Fabric",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vite": "^5.0.8"
+  },
+  "dependencies": {
+    "@uipath/uipath-ts-cli": "file:../../../../../Downloads/uipath-uipath-ts-cli-1.0.0-beta.5 (1).tgz",
+    "@uipath/uipath-typescript": "^1.0.0-beta.14",
+    "bpmn-js": "^18.8.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
