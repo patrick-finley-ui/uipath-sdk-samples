@@ -32,8 +32,8 @@ export const StartProcessModal = ({
   const [isDragging, setIsDragging] = useState(false);
   const [downloadingInvoice, setDownloadingInvoice] = useState<string | null>(null);
 
-  const BUCKET_ID = 101519;
-  const FOLDER_ID = 2500475;
+  const BUCKET_ID = import.meta.env.VITE_UIPATH_BUCKET_ID;
+  const FOLDER_ID = import.meta.env.VITE_UIPATH_BUCKET_FOLDER_ID;
 
   if (!isOpen) return null;
 

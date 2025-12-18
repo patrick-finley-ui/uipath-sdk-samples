@@ -1,0 +1,1672 @@
+<div id="intel-review-app" class="ir-app-root">
+    <div class="ir-shell">
+        <header class="ir-header">
+            <div class="ir-header-main">
+                <div class="ir-header-titles">
+                    <div class="ir-kicker">INTEL REVIEW TASK</div>
+                    <h1 class="ir-title">Person of Interest Investigation</h1>
+                </div>
+                <div class="ir-header-meta">
+                    <div class="ir-meta-block">
+                        <div class="ir-meta-label">Subject</div>
+                        <div class="ir-meta-value" id="ir-subject-name">Unknown Subject</div>
+                    </div>
+                    <div class="ir-meta-block">
+                        <div class="ir-meta-label">System Risk</div>
+                        <div class="ir-badge ir-badge--risk" id="ir-risk-pill">N/A</div>
+                    </div>
+                </div>
+            </div>
+            <div class="ir-header-subrow">
+                <div class="ir-meta-inline">
+                    <span class="ir-dot"></span>
+                    <span class="ir-meta-inline-label">Task</span>
+                    <span class="ir-meta-inline-value">Review intel checks and decide: cleared vs. report
+                        required.</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="ir-main">
+            <section class="ir-layout">
+                <!-- Overall Assessment Panel -->
+                <section class="ir-panel ir-panel--summary" aria-label="Overall Intel Assessment">
+                    <div class="ir-panel-header">
+                        <h2 class="ir-panel-title">Overall Assessment</h2>
+                        <span class="ir-pill ir-pill--risk" id="ir-risk-label">UNKNOWN</span>
+                    </div>
+                    <p class="ir-summary-text" id="ir-summary-text">
+                        Intel summary not available. Using mock data until UiPath variable is bound.
+                    </p>
+                    <div class="ir-system-note">
+                        <div class="ir-system-note-label">System Note</div>
+                        <div class="ir-system-note-body">
+                            System assessment is informational. Analyst may override with justification.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Checks Panel -->
+                <section class="ir-panel ir-panel--checks" aria-label="Intel Checks">
+                    <div class="ir-panel-header">
+                        <h2 class="ir-panel-title">Intel Checks</h2>
+                        <span class="ir-panel-counter" id="ir-check-count">0 checks</span>
+                    </div>
+                    <div class="ir-check-controls">
+                        <div class="ir-check-legend">
+                            <span class="ir-pill ir-pill--pass">Pass</span>
+                            <span class="ir-pill ir-pill--warn">Inconclusive</span>
+                            <span class="ir-pill ir-pill--fail">Fail</span>
+                        </div>
+                        <button type="button" class="ir-expand-all-btn" id="ir-expand-all-btn" hidden>Expand All
+                            Details</button>
+                    </div>
+                    <div class="ir-check-list" id="ir-check-list">
+                        <!-- Checks will be rendered here -->
+                        <div class="ir-placeholder-row">
+                            <div class="ir-placeholder-title">Awaiting intel data…</div>
+                            <div class="ir-placeholder-body">
+                                If bound UiPath variable <code>IntelAssessmentJson</code> is null or invalid, mock intel
+                                will be used.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Decision Panel -->
+                <section class="ir-panel ir-panel--decision" aria-label="Analyst Decision">
+                    <div class="ir-panel-header">
+                        <h2 class="ir-panel-title">Analyst Decision</h2>
+                    </div>
+
+                    <div class="ir-field-group">
+                        <label class="ir-label">Decision</label>
+                        <div class="ir-choice-row" role="radiogroup" aria-label="Analyst decision">
+                            <button type="button" class="ir-choice" data-decision="CLEARED" id="ir-decision-cleared">
+                                <span class="ir-choice-icon ir-choice-icon--green">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </span>
+                                <span class="ir-choice-main">
+                                    <span class="ir-choice-title">Cleared</span>
+                                    <span class="ir-choice-desc">No intel report required</span>
+                                </span>
+                            </button>
+
+                            <button type="button" class="ir-choice" data-decision="REPORT_REQUIRED"
+                                id="ir-decision-report">
+                                <span class="ir-choice-icon ir-choice-icon--red">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                        <polyline points="13 2 13 9 20 9"></polyline>
+                                    </svg>
+                                </span>
+                                <span class="ir-choice-main">
+                                    <span class="ir-choice-title">Generate Intel Report</span>
+                                    <span class="ir-choice-desc">Proceed to formal documentation</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ir-field-group" id="ir-report-type-group" hidden>
+                        <label class="ir-label">Report Format</label>
+                        <div class="ir-choice-row ir-choice-row--compact" role="radiogroup" aria-label="Report format">
+                            <button type="button" class="ir-choice ir-choice--small" data-report-type="DOCX"
+                                id="ir-report-docx">
+                                <span class="ir-choice-title">DOCX</span>
+                                <span class="ir-choice-desc">Word intelligence report</span>
+                            </button>
+                            <button type="button" class="ir-choice ir-choice--small" data-report-type="PPTX"
+                                id="ir-report-pptx">
+                                <span class="ir-choice-title">PPTX</span>
+                                <span class="ir-choice-desc">Briefing slides</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ir-field-group">
+                        <label class="ir-label" for="ir-analyst-notes">
+                            Analyst Notes / Justification
+                            <span class="ir-label-meta" id="ir-notes-hint">
+                                Required to clear a High-risk subject.
+                            </span>
+                        </label>
+                        <textarea id="ir-analyst-notes" class="ir-textarea" rows="4"
+                            placeholder="Capture rationale for your decision, including any overrides of system risk."></textarea>
+                    </div>
+
+                    <div class="ir-status-row">
+                        <div class="ir-validation" id="ir-validation-text" aria-live="polite"></div>
+                        <div class="ir-status-meta">
+                            <span class="ir-status-indicator" id="ir-completion-indicator">Incomplete</span>
+                        </div>
+                    </div>
+
+                    <div class="ir-footnote">
+                        Decision is auto-synced to UiPath variable <code>InvestigationOutcomeJson</code> as you make
+                        changes.
+                    </div>
+                </section>
+
+                <!-- Raw JSON Log Panel -->
+                <section class="ir-panel ir-panel--log" aria-label="Raw JSON Log">
+                    <div class="ir-panel-header">
+                        <h2 class="ir-panel-title">Raw Intel Assessment JSON</h2>
+                        <button type="button" class="ir-expand-all-btn" id="ir-toggle-log-btn">Expand</button>
+                    </div>
+                    <div class="ir-log-content" id="ir-log-content" hidden>
+                        <pre id="ir-raw-json" class="ir-json-display"></pre>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+</div>
+
+<style>
+    /* Root Layout */
+    .ir-app-root {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #1f2937;
+        background-color: #f9fafb;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    .ir-shell {
+        max-width: 1160px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .ir-header {
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .ir-header-main {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .ir-header-titles {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .ir-kicker {
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
+
+    .ir-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+    }
+
+    .ir-header-meta {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+    }
+
+    .ir-meta-block {
+        min-width: 120px;
+    }
+
+    .ir-meta-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #6b7280;
+    }
+
+    .ir-meta-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: #111827;
+        margin-top: 2px;
+    }
+
+    .ir-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 80px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .ir-badge--risk {
+        background: rgba(220, 38, 38, 0.1);
+        border-color: rgba(220, 38, 38, 0.3);
+        color: #dc2626;
+    }
+
+    .ir-header-subrow {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .ir-meta-inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .ir-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+    }
+
+    .ir-meta-inline-label {
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+    }
+
+    .ir-meta-inline-value {
+        opacity: 0.85;
+    }
+
+    /* Layout */
+    .ir-main {
+        width: 100%;
+    }
+
+    .ir-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        grid-template-rows: auto auto auto;
+        gap: 12px;
+    }
+
+    .ir-panel {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        padding: 14px 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .ir-panel--summary {
+        grid-column: 1 / 2;
+    }
+
+    .ir-panel--checks {
+        grid-column: 2 / 3;
+        grid-row: 1 / 3;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ir-panel--decision {
+        grid-column: 1 / 2;
+    }
+
+    .ir-panel--log {
+        grid-column: 1 / 3;
+        grid-row: 3 / 4;
+    }
+
+    /* Panel Header */
+    .ir-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .ir-panel-title {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .ir-panel-counter {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-left: 8px;
+    }
+
+    /* Pills / Status */
+    .ir-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        border: 1px solid transparent;
+        margin-left: 8px;
+    }
+
+    .ir-panel-header .ir-pill {
+        margin-left: 0;
+    }
+
+    .ir-pill--risk {
+        background: rgba(220, 38, 38, 0.1);
+        border-color: rgba(220, 38, 38, 0.3);
+        color: #dc2626;
+    }
+
+    .ir-pill--pass {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #16a34a;
+    }
+
+    .ir-pill--warn {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: #d97706;
+    }
+
+    .ir-pill--fail {
+        background: rgba(220, 38, 38, 0.1);
+        border-color: rgba(220, 38, 38, 0.3);
+        color: #dc2626;
+    }
+
+    /* Summary Panel */
+    .ir-summary-text {
+        font-size: 13px;
+        line-height: 1.5;
+        color: #374151;
+        margin: 0 0 12px;
+    }
+
+    .ir-system-note {
+        border-radius: 12px;
+        border: 1px dashed #d1d5db;
+        padding: 10px 10px 10px 12px;
+        background: #f9fafb;
+    }
+
+    .ir-system-note-label {
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 4px;
+    }
+
+    .ir-system-note-body {
+        font-size: 12px;
+        color: #4b5563;
+    }
+
+    /* Checks Panel */
+    .ir-check-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .ir-check-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .ir-expand-all-btn {
+        font-size: 11px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        color: #6b7280;
+        cursor: pointer;
+        min-height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 500;
+        transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease;
+    }
+
+    .ir-expand-all-btn:hover {
+        border-color: #9ca3af;
+        color: #374151;
+        background: #f9fafb;
+    }
+
+    .ir-expand-all-btn:focus-visible {
+        outline: 2px solid #22c55e;
+        outline-offset: 1px;
+    }
+
+    .ir-check-list {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 4px;
+        min-height: 0;
+    }
+
+    /* Custom Scrollbar (minimal, dark) */
+    .ir-check-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .ir-check-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .ir-check-list::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 999px;
+    }
+
+    /* Check Row */
+    .ir-check-row {
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        padding: 9px 10px;
+        margin-bottom: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .ir-check-main {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .ir-check-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+    }
+
+    .ir-check-icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #374151;
+    }
+
+    .ir-check-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .ir-check-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: #111827;
+    }
+
+    .ir-check-meta {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 1px;
+    }
+
+    .ir-check-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ir-check-tagline {
+        font-size: 11px;
+        color: #6b7280;
+    }
+
+    .ir-toggle-details {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        color: #6b7280;
+        cursor: pointer;
+        min-height: 28px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ir-toggle-details:hover {
+        border-color: #9ca3af;
+        color: #374151;
+        background: #f9fafb;
+    }
+
+    .ir-check-details {
+        font-size: 12px;
+        color: #4b5563;
+        line-height: 1.5;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 6px;
+    }
+
+    /* Placeholder */
+    .ir-placeholder-row {
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px dashed #d1d5db;
+        background: #f9fafb;
+    }
+
+    .ir-placeholder-title {
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 3px;
+        color: #374151;
+    }
+
+    .ir-placeholder-body {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    /* Decision Panel */
+    .ir-field-group {
+        margin-bottom: 12px;
+    }
+
+    .ir-label {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 4px;
+    }
+
+    .ir-label-meta {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-left: 8px;
+    }
+
+    .ir-choice-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ir-choice-row--compact {
+        gap: 8px;
+    }
+
+    .ir-choice {
+        position: relative;
+        flex: 1 1 160px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        color: #374151;
+        cursor: pointer;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        text-align: left;
+        transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+    }
+
+    .ir-choice--small {
+        flex: 0 0 auto;
+        border-radius: 10px;
+    }
+
+    .ir-choice-icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ir-choice-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .ir-choice-icon--green {
+        color: #16a34a;
+    }
+
+    .ir-choice-icon--red {
+        color: #dc2626;
+    }
+
+    .ir-choice-main {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+    }
+
+    .ir-choice-title {
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .ir-choice-desc {
+        font-size: 11px;
+        color: #6b7280;
+    }
+
+    .ir-choice-tag {
+        font-size: 10px;
+        padding: 3px 7px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        border: 1px solid transparent;
+        margin-left: 8px;
+        flex-shrink: 0;
+    }
+
+    .ir-choice-tag--green {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #16a34a;
+    }
+
+    .ir-choice-tag--amber {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: #d97706;
+    }
+
+    .ir-choice:focus-visible {
+        outline: 2px solid #22c55e;
+        outline-offset: 1px;
+    }
+
+    .ir-choice:hover {
+        border-color: #9ca3af;
+        box-shadow: 0 0 0 1px rgba(156, 163, 175, 0.3);
+        background: #f9fafb;
+    }
+
+    .ir-choice.is-active {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3);
+        background: rgba(34, 197, 94, 0.05);
+    }
+
+    /* Textarea */
+    .ir-textarea {
+        width: 100%;
+        min-height: 88px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        color: #374151;
+        font-size: 13px;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+
+    .ir-textarea::placeholder {
+        color: #9ca3af;
+    }
+
+    .ir-textarea:focus-visible {
+        outline: 2px solid #22c55e;
+        outline-offset: 1px;
+    }
+
+    /* Status Row */
+    .ir-status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .ir-validation {
+        font-size: 11px;
+        color: #f97316;
+        min-height: 14px;
+    }
+
+    .ir-status-meta {
+        font-size: 11px;
+        color: #9ca3af;
+    }
+
+    .ir-status-indicator {
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        color: #6b7280;
+    }
+
+    .ir-status-indicator.is-complete {
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #16a34a;
+        background: rgba(34, 197, 94, 0.1);
+    }
+
+    /* Footnote */
+    .ir-footnote {
+        margin-top: 8px;
+        font-size: 11px;
+        color: #9ca3af;
+    }
+
+    /* Log Panel */
+    .ir-log-content {
+        margin-top: 12px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        background: #1f2937;
+        max-height: 400px;
+        overflow: auto;
+    }
+
+    .ir-log-content::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .ir-log-content::-webkit-scrollbar-track {
+        background: #111827;
+        border-radius: 10px;
+    }
+
+    .ir-log-content::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        border-radius: 10px;
+    }
+
+    .ir-json-display {
+        margin: 0;
+        padding: 12px 14px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        line-height: 1.6;
+        color: #e5e7eb;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /* Utility */
+    code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        background: #f3f4f6;
+        padding: 1px 4px;
+        border-radius: 4px;
+        color: #111827;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .ir-layout {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: auto;
+        }
+
+        .ir-panel--summary,
+        .ir-panel--decision,
+        .ir-panel--checks,
+        .ir-panel--log {
+            grid-column: 1 / -1;
+        }
+
+        .ir-header-main {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .ir-header-meta {
+            width: 100%;
+        }
+
+        .ir-check-list {
+            max-height: none;
+        }
+    }
+
+    /* Code Summary:
+   - Purpose: Overall layout, dark tactical theme, responsive panels for summary, checks, decision.
+   - Key classes: .ir-app-root, .ir-panel, .ir-check-row, .ir-choice, .ir-textarea.
+   - Accessibility: Touch targets >=44x44 via padding; focus-visible styles; readable contrast.
+*/
+</style>
+
+<script>
+    (function () {
+        console.log("[IntelReview] Script initializing");
+
+        // ---- UiPath Variable Helpers ----
+        async function getVariableSafe(name) {
+            try {
+                if (typeof App !== "undefined" && App && typeof App.getVariable === "function") {
+                    const value = await App.getVariable(name);
+                    console.log("[IntelReview] App.getVariable('" + name + "') returned:");
+                    console.log("[IntelReview] - Type:", typeof value);
+                    console.log("[IntelReview] - Value:", value);
+                    return value;
+                }
+                console.warn("[IntelReview] App.getVariable not available");
+            } catch (e) {
+                console.error("[IntelReview] getVariableSafe error:", e);
+            }
+            return null;
+        }
+
+        function setVariableSafe(name, value) {
+            try {
+                if (typeof App !== "undefined" && App && typeof App.setVariable === "function") {
+                    App.setVariable(name, value);
+                    console.log("[IntelReview] setVariableSafe", name, value);
+                } else {
+                    console.log("[IntelReview] App.setVariable not available; payload:", name, value);
+                }
+            } catch (e) {
+                console.warn("[IntelReview] setVariableSafe error", e);
+            }
+        }
+
+        function onVariableChangeSafe(name, handler) {
+            try {
+                if (
+                    typeof App !== "undefined" &&
+                    App &&
+                    typeof App.onVariableChange === "function"
+                ) {
+                    App.onVariableChange(name, handler);
+                }
+            } catch (e) {
+                console.warn("[IntelReview] onVariableChangeSafe error", e);
+            }
+        }
+
+        // ---- Mock Intel Data (used if UiPath input is null/invalid) ----
+        const MOCK_INTEL = {
+            checks: [
+                {
+                    name: "CBP Watchlist Check",
+                    result: "Inconclusive",
+                    details:
+                        "No explicit CBP 'Persons of Interest at Ports of Entry' watchlist data provided for Sergei Volkov; status cannot be confirmed from supplied records alone."
+                },
+                {
+                    name: "Border Crossing History Check",
+                    result: "Fail",
+                    details:
+                        "CBP-related vessel voyage history for USV-7123 shows a HIGH-risk voyage on 2025-11-12 from Colón, Panama to Brownsville, Texas with a route deviation detected. Sergei Volkov is listed as a deckhand on this vessel, directly linking him to a recent high-risk border-adjacent maritime movement."
+                },
+                {
+                    name: "ID Authenticity Check",
+                    result: "Fail",
+                    details:
+                        "ID Number RU8829914 (Russian passport) appears consistently in the crew manifest and criminal records for Sergei Volkov, but immigration records show a different passport number (987654321) with an expired B1/B2 visa, previous overstay, and watchlist match. Multiple identities/documents and visa overstay history indicate elevated document and compliance risk, not a clean/benign profile."
+                },
+                {
+                    name: "Flight History Check",
+                    result: "Inconclusive",
+                    details:
+                        "No flight or aviation travel history data is included in the provided API output; suspicious flight patterns cannot be assessed."
+                },
+                {
+                    name: "Vessel/Maritime Movement Check",
+                    result: "Fail",
+                    details:
+                        "Vessel USV-7123 (Pacific Wind), on which Sergei Volkov serves as deckhand, has a recent HIGH-risk voyage (route deviation) and is crewed by multiple individuals with serious smuggling, drug trafficking, customs, and human-trafficking records. Current AIS status indicates drifting, which can be consistent with covert transfers. Overall maritime profile is high-risk."
+                },
+                {
+                    name: "Prior Law Enforcement Incident Check",
+                    result: "Fail",
+                    details:
+                        "Criminal records show Sergei Volkov (DOB 1980-12-05, Passport RU8829914) with 2015 fraud and 2018 money-laundering charges, active warrants, and active supervision, with severity 8/10 and risk 7.2. This indicates significant prior financial and organized-crime-type activity."
+                },
+                {
+                    name: "Cross-Agency Watchlist/Sanctions Check",
+                    result: "Fail",
+                    details:
+                        "Immigration records for Sergei Volkov (passport 987654321) show an expired B1/B2 visa, previous overstay, and an explicit Watch List Match flag. Legacy intelligence summary (status HIT, riskContribution MEDIUM) also indicates prior concern in federal intelligence briefs. Combined, these constitute cross-agency watchlist hits."
+                },
+                {
+                    name: "Known Associates/Network Check",
+                    result: "Fail",
+                    details:
+                        "Crew associates on USV-7123 (Carlos Mendoza, Tomas Rivera, James Lee) have serious criminal histories including smuggling, customs violations, human trafficking, and drug trafficking, with active warrants/absconded status for key crew. Association with this high-risk maritime crew and prior mention in logistics-facilitation intel networks indicates a high-risk network environment."
+                },
+                {
+                    name: "Financial Activity Check",
+                    result: "Fail",
+                    details:
+                        "FINCEN SAR flag is TRUE with a pattern of repeated transfers in the $8,500–$9,800 range, consistent with structuring to evade reporting thresholds. Combined with prior money-laundering charges, this indicates ongoing high-risk financial behavior."
+                },
+                {
+                    name: "Intel Summary Check",
+                    result: "Fail",
+                    details:
+                        "Legacy intelligence summaries (FC-2019-27 and FC-2021-11) reference the subject in the context of a logistics facilitation network operating between Mexico and the US southwest border and as a recurring name in association matrices, with status HIT and MEDIUM concern level, recommending continued monitoring. This is a non-benign intelligence profile."
+                }
+            ],
+            overall_assessment: {
+                risk_level: "High",
+                summary:
+                    "Multiple independent indicators—serious prior fraud and money-laundering charges with active warrants, FINCEN-flagged structuring activity, cross-agency watchlist hits and visa overstay history, association with a high-risk vessel (route deviation) and crew involved in smuggling, drugs, and human trafficking, and prior intelligence briefs linking the subject to a border logistics facilitation network—collectively support a HIGH overall risk assessment rather than a false alarm."
+            }
+        };
+
+        // ---- State ----
+        const state = {
+            intel: null,
+            rawJson: null, // Store the raw JSON string for display
+            decision: null, // "CLEARED" | "REPORT_REQUIRED" | null
+            reportType: null, // "DOCX" | "PPTX" | null
+            comments: "",
+            validationError: null
+        };
+
+        // ---- Data Loading ----
+        async function loadIntelData() {
+            console.log("[IntelReview] ========== START DATA LOADING ==========");
+            const raw = await getVariableSafe("IntelAssessmentJson");
+
+            if (!raw) {
+                console.log("[IntelReview] No UiPath input received (raw is null/undefined)");
+                console.log("[IntelReview] Using MOCK_INTEL data");
+                state.rawJson = JSON.stringify(MOCK_INTEL, null, 2);
+                console.log("[IntelReview] ========== END DATA LOADING ==========");
+                return MOCK_INTEL;
+            }
+
+            console.log("[IntelReview] Raw data received from UiPath:");
+            console.log("[IntelReview] Type:", typeof raw);
+            console.log("[IntelReview] Value:", raw);
+
+            try {
+                let parsed = raw;
+                let originalJsonString = null;
+
+                if (typeof raw === "string") {
+                    console.log("[IntelReview] Raw data is a string, attempting to parse...");
+                    parsed = JSON.parse(raw);
+                    console.log("[IntelReview] Successfully parsed string to object");
+                    console.log("[IntelReview] Parsed object:", parsed);
+
+                    // Try to pretty-print the original for display
+                    try {
+                        originalJsonString = JSON.stringify(JSON.parse(raw), null, 2);
+                        console.log("[IntelReview] Created pretty-printed JSON for display");
+                    } catch (e) {
+                        console.warn("[IntelReview] Could not pretty-print, using raw string");
+                        originalJsonString = raw;
+                    }
+                } else {
+                    console.log("[IntelReview] Raw data is already an object");
+                    originalJsonString = JSON.stringify(raw, null, 2);
+                    console.log("[IntelReview] Stringified object for display");
+                }
+
+                state.rawJson = originalJsonString;
+
+                // Check if data has inputJsonString wrapper
+                let intelData = parsed;
+                console.log("[IntelReview] Checking for 'inputJsonString' wrapper...");
+
+                if (parsed && parsed.inputJsonString) {
+                    console.log("[IntelReview] ✓ Detected 'inputJsonString' wrapper");
+                    console.log("[IntelReview] inputJsonString type:", typeof parsed.inputJsonString);
+                    console.log("[IntelReview] inputJsonString value:", parsed.inputJsonString);
+
+                    intelData = parsed.inputJsonString;
+
+                    // If inputJsonString is a string, parse it
+                    if (typeof intelData === "string") {
+                        console.log("[IntelReview] inputJsonString is a string, parsing nested JSON...");
+                        intelData = JSON.parse(intelData);
+                        console.log("[IntelReview] Successfully parsed nested JSON");
+                        console.log("[IntelReview] Final intelData:", intelData);
+                    } else {
+                        console.log("[IntelReview] inputJsonString is already an object");
+                    }
+                } else {
+                    console.log("[IntelReview] No 'inputJsonString' wrapper found, using data directly");
+                }
+
+                console.log("[IntelReview] Validating intel data structure...");
+                console.log("[IntelReview] - intelData is null/undefined?", !intelData);
+                console.log("[IntelReview] - intelData type:", typeof intelData);
+                console.log("[IntelReview] - Has checks property?", intelData && "checks" in intelData);
+                console.log("[IntelReview] - checks is array?", intelData && Array.isArray(intelData.checks));
+                console.log("[IntelReview] - Checks count:", intelData && intelData.checks ? intelData.checks.length : 0);
+                console.log("[IntelReview] - Has overall_assessment property?", intelData && "overall_assessment" in intelData);
+                console.log("[IntelReview] - overall_assessment exists?", intelData && !!intelData.overall_assessment);
+
+                if (
+                    intelData &&
+                    typeof intelData === "object" &&
+                    Array.isArray(intelData.checks) &&
+                    intelData.overall_assessment &&
+                    typeof intelData.overall_assessment === "object"
+                ) {
+                    console.log("[IntelReview] ✓ Validation PASSED - Data structure is valid");
+                    console.log("[IntelReview] Successfully loaded intel from UiPath variable");
+                    console.log("[IntelReview] Risk level:", intelData.overall_assessment.risk_level);
+                    console.log("[IntelReview] Checks count:", intelData.checks.length);
+                    console.log("[IntelReview] ========== END DATA LOADING ==========");
+                    return intelData;
+                }
+
+                console.warn("[IntelReview] ✗ Validation FAILED - Intel shape invalid");
+                console.warn("[IntelReview] Expected: {checks: Array, overall_assessment: Object}");
+                console.warn("[IntelReview] Received intelData:");
+                console.warn("[IntelReview] - Type:", typeof intelData);
+                console.warn("[IntelReview] - Value:", intelData);
+                console.warn("[IntelReview] Falling back to mock data");
+            } catch (e) {
+                console.error("[IntelReview] ✗ PARSING ERROR occurred:");
+                console.error("[IntelReview] Error message:", e.message);
+                console.error("[IntelReview] Error stack:", e.stack);
+                console.error("[IntelReview] Falling back to mock data");
+            }
+
+            state.rawJson = JSON.stringify(MOCK_INTEL, null, 2);
+            console.log("[IntelReview] Using MOCK_INTEL as fallback");
+            console.log("[IntelReview] ========== END DATA LOADING ==========");
+            return MOCK_INTEL;
+        }
+
+        // ---- Rendering Helpers ----
+        function riskToClasses(riskLevel) {
+            if (!riskLevel) return { text: "UNKNOWN", pillText: "UNKNOWN" };
+            const normalized = String(riskLevel).toLowerCase();
+            if (normalized === "high") {
+                return { text: "High Risk", pillText: "HIGH" };
+            }
+            if (normalized === "medium") {
+                return { text: "Medium Risk", pillText: "MEDIUM" };
+            }
+            if (normalized === "low") {
+                return { text: "Low Risk", pillText: "LOW" };
+            }
+            return { text: String(riskLevel), pillText: String(riskLevel).toUpperCase() };
+        }
+
+        function resultToClass(result) {
+            const normalized = String(result || "").toLowerCase();
+            if (normalized === "pass") return "ir-pill ir-pill--pass";
+            if (normalized === "fail") return "ir-pill ir-pill--fail";
+            if (normalized === "inconclusive") return "ir-pill ir-pill--warn";
+            return "ir-pill";
+        }
+
+        function getCheckIconSVG(iconType) {
+            const icons = {
+                airplane: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L6 12l-2 3H4l-1 1 3 2 2 3 1-1v-1l3-2 3.5 2.2c.3.2.8.3 1.3.3l.5-.3c.3-.3.5-.7.3-1.2z"></path></svg>',
+                ship: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M5 21V3l5.5 5.5L16 3v18"></path><path d="M2 11h20"></path><path d="M7 11V7h10v4"></path></svg>',
+                id: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="7" y1="6" x2="7" y2="6.01"></line><line x1="7" y1="14" x2="17" y2="14"></line></svg>',
+                border: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="4" x2="9" y2="22"></line><line x1="15" y1="4" x2="15" y2="22"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>',
+                shield: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+                list: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>',
+                users: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+                dollar: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+                file: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>',
+                search: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>',
+                clipboard: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>'
+            };
+            return icons[iconType] || icons.search;
+        }
+
+        function getCheckIcon(checkName) {
+            if (!checkName) return getCheckIconSVG("clipboard");
+            const name = String(checkName).toLowerCase();
+            if (name.includes("flight") || name.includes("aviation")) return getCheckIconSVG("airplane");
+            if (name.includes("vessel") || name.includes("maritime") || name.includes("ship")) return getCheckIconSVG("ship");
+            if (name.includes("id") || name.includes("authenticity") || name.includes("document")) return getCheckIconSVG("id");
+            if (name.includes("border") || name.includes("crossing")) return getCheckIconSVG("border");
+            if (name.includes("law enforcement") || name.includes("incident") || name.includes("criminal")) return getCheckIconSVG("shield");
+            if (name.includes("watchlist") || name.includes("sanctions")) return getCheckIconSVG("list");
+            if (name.includes("associate") || name.includes("network")) return getCheckIconSVG("users");
+            if (name.includes("financial") || name.includes("money") || name.includes("fincen")) return getCheckIconSVG("dollar");
+            if (name.includes("intel summary") || name.includes("summary")) return getCheckIconSVG("file");
+            return getCheckIconSVG("search");
+        }
+
+        // ---- UI Rendering ----
+        function renderHeader(intel) {
+            const subjectEl = document.getElementById("ir-subject-name");
+            const riskPillEl = document.getElementById("ir-risk-pill");
+
+            if (subjectEl) {
+                // Subject name is not present in JSON; friendly placeholder
+                subjectEl.textContent = "Sergei Volkov (Mock Data)";
+            }
+
+            if (riskPillEl) {
+                const riskMeta = riskToClasses(
+                    intel.overall_assessment && intel.overall_assessment.risk_level
+                );
+                riskPillEl.textContent = riskMeta.text;
+            }
+        }
+
+        function renderSummary(intel) {
+            const riskLabelEl = document.getElementById("ir-risk-label");
+            const summaryTextEl = document.getElementById("ir-summary-text");
+
+            if (riskLabelEl) {
+                const riskMeta = riskToClasses(
+                    intel.overall_assessment && intel.overall_assessment.risk_level
+                );
+                riskLabelEl.textContent = riskMeta.pillText;
+            }
+
+            if (summaryTextEl) {
+                summaryTextEl.textContent =
+                    (intel.overall_assessment && intel.overall_assessment.summary) ||
+                    "No summary supplied for this subject.";
+            }
+        }
+
+        function renderChecks(intel) {
+            const listEl = document.getElementById("ir-check-list");
+            const countEl = document.getElementById("ir-check-count");
+            const expandAllBtnEl = document.getElementById("ir-expand-all-btn");
+
+            if (!listEl) return;
+
+            const checks = Array.isArray(intel.checks) ? intel.checks : [];
+            if (countEl) {
+                countEl.textContent = `${checks.length} check${checks.length === 1 ? "" : "s"}`;
+            }
+
+            if (expandAllBtnEl) {
+                if (checks.length > 0) {
+                    expandAllBtnEl.removeAttribute("hidden");
+                    expandAllBtnEl.textContent = "Expand All Details";
+                } else {
+                    expandAllBtnEl.setAttribute("hidden", "hidden");
+                }
+            }
+
+            if (!checks.length) {
+                listEl.innerHTML =
+                    '<div class="ir-placeholder-row"><div class="ir-placeholder-title">No checks available</div><div class="ir-placeholder-body">No intel checks were provided in the input JSON.</div></div>';
+                return;
+            }
+
+            const rowsHtml = checks
+                .map((check, index) => {
+                    const pillClass = resultToClass(check.result);
+                    const safeName = check.name || "Unnamed Check";
+                    const safeResult = check.result || "Unknown";
+                    const safeDetails = check.details || "No additional detail supplied.";
+                    const icon = getCheckIcon(safeName);
+
+                    return (
+                        '<article class="ir-check-row" data-index="' +
+                        index +
+                        '">' +
+                        '<div class="ir-check-main">' +
+                        '<div class="ir-check-title-wrapper">' +
+                        '<span class="ir-check-icon">' +
+                        icon +
+                        "</span>" +
+                        '<div>' +
+                        '<div class="ir-check-title">' +
+                        safeName +
+                        "</div>" +
+                        '<div class="ir-check-meta">Result from source ' +
+                        (index + 1) +
+                        "</div>" +
+                        "</div>" +
+                        "</div>" +
+                        '<span class="' +
+                        pillClass +
+                        '">' +
+                        safeResult +
+                        "</span>" +
+                        "</div>" +
+                        '<div class="ir-check-actions">' +
+                        '<div class="ir-check-tagline">Tap for details</div>' +
+                        '<button type="button" class="ir-toggle-details" data-details-toggle="' +
+                        index +
+                        '">Details</button>' +
+                        "</div>" +
+                        '<div class="ir-check-details" data-details="' +
+                        index +
+                        '" hidden>' +
+                        safeDetails +
+                        "</div>" +
+                        "</article>"
+                    );
+                })
+                .join("");
+
+            listEl.innerHTML = rowsHtml;
+
+            // Attach detail toggles
+            const toggles = listEl.querySelectorAll("[data-details-toggle]");
+            toggles.forEach(function (btn) {
+                if (!btn) return;
+                btn.addEventListener("click", function () {
+                    const idx = btn.getAttribute("data-details-toggle");
+                    const detailsEl = listEl.querySelector('[data-details="' + idx + '"]');
+                    if (!detailsEl) return;
+                    const currentlyHidden = detailsEl.hasAttribute("hidden");
+                    if (currentlyHidden) {
+                        detailsEl.removeAttribute("hidden");
+                        btn.textContent = "Hide details";
+                    } else {
+                        detailsEl.setAttribute("hidden", "hidden");
+                        btn.textContent = "Details";
+                    }
+                });
+            });
+
+        }
+
+        function renderRawJsonLog() {
+            const rawJsonEl = document.getElementById("ir-raw-json");
+            if (rawJsonEl && state.rawJson) {
+                rawJsonEl.textContent = state.rawJson;
+            }
+        }
+
+        // ---- Expand All Button Wiring (called once) ----
+        function wireExpandAllButton() {
+            const expandAllBtnEl = document.getElementById("ir-expand-all-btn");
+            if (expandAllBtnEl && !expandAllBtnEl.hasAttribute("data-wired")) {
+                expandAllBtnEl.setAttribute("data-wired", "true");
+                let allExpanded = false;
+                expandAllBtnEl.addEventListener("click", function () {
+                    const listEl = document.getElementById("ir-check-list");
+                    if (!listEl) return;
+                    const allDetails = listEl.querySelectorAll("[data-details]");
+                    const allToggleBtns = listEl.querySelectorAll("[data-details-toggle]");
+
+                    if (!allExpanded) {
+                        // Expand all
+                        allDetails.forEach(function (detailsEl) {
+                            if (detailsEl) {
+                                detailsEl.removeAttribute("hidden");
+                            }
+                        });
+                        allToggleBtns.forEach(function (btn) {
+                            if (btn) {
+                                btn.textContent = "Hide details";
+                            }
+                        });
+                        expandAllBtnEl.textContent = "Collapse All Details";
+                        allExpanded = true;
+                    } else {
+                        // Collapse all
+                        allDetails.forEach(function (detailsEl) {
+                            if (detailsEl) {
+                                detailsEl.setAttribute("hidden", "hidden");
+                            }
+                        });
+                        allToggleBtns.forEach(function (btn) {
+                            if (btn) {
+                                btn.textContent = "Details";
+                            }
+                        });
+                        expandAllBtnEl.textContent = "Expand All Details";
+                        allExpanded = false;
+                    }
+                });
+            }
+        }
+
+        // ---- Log Toggle Button Wiring (called once) ----
+        function wireLogToggleButton() {
+            const toggleLogBtn = document.getElementById("ir-toggle-log-btn");
+            const logContent = document.getElementById("ir-log-content");
+
+            if (toggleLogBtn && logContent && !toggleLogBtn.hasAttribute("data-wired")) {
+                toggleLogBtn.setAttribute("data-wired", "true");
+
+                toggleLogBtn.addEventListener("click", function () {
+                    const isHidden = logContent.hasAttribute("hidden");
+                    if (isHidden) {
+                        logContent.removeAttribute("hidden");
+                        toggleLogBtn.textContent = "Collapse";
+                    } else {
+                        logContent.setAttribute("hidden", "hidden");
+                        toggleLogBtn.textContent = "Expand";
+                    }
+                });
+            }
+        }
+
+        // ---- Decision & Validation ----
+        function updateDecisionUI() {
+            const clearedBtn = document.getElementById("ir-decision-cleared");
+            const reportBtn = document.getElementById("ir-decision-report");
+            const reportTypeGroup = document.getElementById("ir-report-type-group");
+            const docxBtn = document.getElementById("ir-report-docx");
+            const pptxBtn = document.getElementById("ir-report-pptx");
+            const completionEl = document.getElementById("ir-completion-indicator");
+            const validationEl = document.getElementById("ir-validation-text");
+
+            if (clearedBtn) {
+                clearedBtn.classList.toggle("is-active", state.decision === "CLEARED");
+            }
+            if (reportBtn) {
+                reportBtn.classList.toggle("is-active", state.decision === "REPORT_REQUIRED");
+            }
+
+            if (reportTypeGroup) {
+                if (state.decision === "REPORT_REQUIRED") {
+                    reportTypeGroup.removeAttribute("hidden");
+                } else {
+                    reportTypeGroup.setAttribute("hidden", "hidden");
+                }
+            }
+
+            if (docxBtn) {
+                docxBtn.classList.toggle("is-active", state.reportType === "DOCX");
+            }
+            if (pptxBtn) {
+                pptxBtn.classList.toggle("is-active", state.reportType === "PPTX");
+            }
+
+            if (completionEl) {
+                if (!state.validationError && state.decision) {
+                    completionEl.textContent = "Decision ready";
+                    completionEl.classList.add("is-complete");
+                } else {
+                    completionEl.textContent = "Incomplete";
+                    completionEl.classList.remove("is-complete");
+                }
+            }
+
+            if (validationEl) {
+                validationEl.textContent = state.validationError || "";
+            }
+        }
+
+        function validateState() {
+            const riskLevel =
+                state.intel &&
+                state.intel.overall_assessment &&
+                state.intel.overall_assessment.risk_level;
+            const riskIsHigh =
+                typeof riskLevel === "string" &&
+                riskLevel.toLowerCase() === "high";
+
+            let error = null;
+            if (!state.decision) {
+                error = "Select a decision to proceed.";
+            } else if (state.decision === "REPORT_REQUIRED" && !state.reportType) {
+                error = "Select a report format (DOCX or PPTX).";
+            } else if (
+                state.decision === "CLEARED" &&
+                riskIsHigh &&
+                (!state.comments || !state.comments.trim())
+            ) {
+                error =
+                    "Justification is required to clear a subject when system risk is High.";
+            }
+
+            state.validationError = error;
+            return !error;
+        }
+
+        function computeOverridesSystemRisk() {
+            const riskLevel =
+                state.intel &&
+                state.intel.overall_assessment &&
+                state.intel.overall_assessment.risk_level;
+            const riskIsHigh =
+                typeof riskLevel === "string" &&
+                riskLevel.toLowerCase() === "high";
+
+            return Boolean(riskIsHigh && state.decision === "CLEARED");
+        }
+
+        function syncOutcomeToUiPath() {
+            const isValid = validateState();
+
+            const riskLevel =
+                state.intel &&
+                state.intel.overall_assessment &&
+                state.intel.overall_assessment.risk_level;
+
+            const payload = {
+                decision: state.decision, // "CLEARED" | "REPORT_REQUIRED" | null
+                reportType: state.reportType, // "DOCX" | "PPTX" | null
+                analystComments: state.comments || "",
+                overridesSystemRisk: computeOverridesSystemRisk(),
+                riskLevel: riskLevel || null,
+                isComplete: isValid && Boolean(state.decision),
+                validationError: state.validationError,
+                timestampUtc: new Date().toISOString()
+            };
+
+            setVariableSafe("InvestigationOutcomeJson", JSON.stringify(payload));
+            updateDecisionUI();
+        }
+
+        // ---- Event Wiring ----
+        function wireDecisionEvents() {
+            const clearedBtn = document.getElementById("ir-decision-cleared");
+            const reportBtn = document.getElementById("ir-decision-report");
+            const docxBtn = document.getElementById("ir-report-docx");
+            const pptxBtn = document.getElementById("ir-report-pptx");
+            const notesEl = document.getElementById("ir-analyst-notes");
+
+            if (clearedBtn) {
+                clearedBtn.addEventListener("click", function () {
+                    state.decision = "CLEARED";
+                    syncOutcomeToUiPath();
+                });
+            }
+
+            if (reportBtn) {
+                reportBtn.addEventListener("click", function () {
+                    state.decision = "REPORT_REQUIRED";
+                    // Reset report type if switching from cleared
+                    if (!state.reportType) {
+                        state.reportType = null;
+                    }
+                    syncOutcomeToUiPath();
+                });
+            }
+
+            if (docxBtn) {
+                docxBtn.addEventListener("click", function () {
+                    state.reportType = "DOCX";
+                    // Ensure decision is aligned
+                    if (state.decision !== "REPORT_REQUIRED") {
+                        state.decision = "REPORT_REQUIRED";
+                    }
+                    syncOutcomeToUiPath();
+                });
+            }
+
+            if (pptxBtn) {
+                pptxBtn.addEventListener("click", function () {
+                    state.reportType = "PPTX";
+                    if (state.decision !== "REPORT_REQUIRED") {
+                        state.decision = "REPORT_REQUIRED";
+                    }
+                    syncOutcomeToUiPath();
+                });
+            }
+
+            if (notesEl) {
+                // Per guardrails: use blur for textarea changes
+                notesEl.addEventListener("blur", function () {
+                    state.comments = notesEl.value || "";
+                    syncOutcomeToUiPath();
+                });
+            }
+        }
+
+        // ---- Initialization ----
+        let isInitialized = false;
+
+        async function initIntelReview(skipVariableEvents) {
+            const root = document.getElementById("intel-review-app");
+            if (!root) {
+                console.log("[IntelReview] Root element not found");
+                return false;
+            }
+
+            try {
+                // Load intel (async)
+                state.intel = await loadIntelData();
+                renderHeader(state.intel);
+                renderSummary(state.intel);
+                renderChecks(state.intel);
+                renderRawJsonLog();
+
+                // Wire events once (only on first successful init)
+                if (!isInitialized) {
+                    wireDecisionEvents();
+                    wireExpandAllButton();
+                    wireLogToggleButton();
+                    isInitialized = true;
+                }
+
+                syncOutcomeToUiPath();
+
+                if (!skipVariableEvents) {
+                    // Optional: listen for changes from UiPath on the input intel JSON
+                    onVariableChangeSafe("IntelAssessmentJson", async function () {
+                        console.log("[IntelReview] IntelAssessmentJson changed, reloading...");
+                        state.intel = await loadIntelData();
+                        renderHeader(state.intel);
+                        renderSummary(state.intel);
+                        renderChecks(state.intel);
+                        renderRawJsonLog();
+                        // Re-validate current decision against updated intel
+                        syncOutcomeToUiPath();
+                    });
+                }
+
+                console.log("[IntelReview] Initialization complete");
+                return true;
+            } catch (error) {
+                console.error("[IntelReview] Initialization error:", error);
+                return false;
+            }
+        }
+
+        // Multiple initialization attempts for UiPath compatibility
+        function initializeApplication() {
+            console.log("[IntelReview] Starting application initialization...");
+
+            // Try multiple initialization methods for UiPath compatibility
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log("[IntelReview] DOMContentLoaded fired");
+                    attemptInitialization();
+                });
+            } else {
+                // DOM is already loaded
+                console.log("[IntelReview] DOM already loaded");
+                attemptInitialization();
+            }
+
+            // Fallback: try again after a short delay
+            setTimeout(() => {
+                if (!isInitialized) {
+                    console.log("[IntelReview] Retrying initialization (100ms)...");
+                    attemptInitialization();
+                }
+            }, 100);
+
+            // Additional fallback for UiPath
+            setTimeout(() => {
+                if (!isInitialized) {
+                    console.log("[IntelReview] Final initialization attempt (500ms)...");
+                    attemptInitialization();
+                }
+            }, 500);
+        }
+
+        async function attemptInitialization() {
+            const success = await initIntelReview(false);
+            if (!success && !isInitialized) {
+                // UiPath can render asynchronously; retry a few times
+                let attempts = 0;
+                const maxAttempts = 10;
+                const intervalId = setInterval(async function () {
+                    attempts += 1;
+                    console.log("[IntelReview] Retry attempt " + attempts + "/" + maxAttempts);
+                    const ok = await initIntelReview(true);
+                    if (ok || attempts >= maxAttempts) {
+                        clearInterval(intervalId);
+                        if (!ok && attempts >= maxAttempts) {
+                            console.warn("[IntelReview] Max initialization attempts reached");
+                        }
+                    }
+                }, 400);
+            }
+        }
+
+        // Start the application
+        initializeApplication();
+    })();
+
+    // Code Summary:
+    // - Reads UiPath variable: "IntelAssessmentJson" (JSON with checks & overall_assessment).
+    // - Writes UiPath variable: "InvestigationOutcomeJson" (JSON with decision, reportType, comments, overridesSystemRisk, riskLevel, isComplete, validationError, timestampUtc).
+    // - Key events: click (decision buttons, report type buttons), blur (analyst notes textarea).
+    // - Includes validation: blocks “High risk CLEARED” without justification and enforces report type selection for REPORT_REQUIRED.
+</script>

@@ -1,0 +1,93 @@
+{
+  "inputs": {
+    "type": "object",
+    "properties": {
+      "clins": {
+        "type": "array",
+        "description": "Contract Line Items with three-way match data",
+        "items": {
+          "type": "object",
+          "properties": {
+            "line_item": { "type": "string" },
+            "po_shipment_number": { "type": "string" },
+            "po_delivery_estimate_date": { "type": "string" },
+            "shipment_number_goods_receipt": { "type": "string" },
+            "delivery_date_goods_receipt": { "type": "string" },
+            "line_item_po": { "type": "string" },
+            "line_item_invoice": { "type": "string" },
+            "line_item_goods_receipt": { "type": "string" },
+            "quantity_po": { "type": "string" },
+            "quantity_invoice": { "type": "string" },
+            "quantity_shipped_goods_receipt": { "type": "string" },
+            "quantity_accepted_goods_receipt": { "type": "string" },
+            "quantity_rejected_goods_receipt": { "type": "string" },
+            "unit_price_po": { "type": "string" },
+            "unit_price_invoice": { "type": "string" },
+            "unit_price_goods_receipt": { "type": "string" },
+            "amount_po": { "type": "string" },
+            "amount_invoice": { "type": "string" },
+            "amount_goods_receipt": { "type": "string" },
+            "acceptance_condition_goods_receipt": { "type": "string" },
+            "acceptance_remarks_goods_receipt": { "type": "string" },
+            "funding_code_po": { "type": "string" },
+            "match_status": { "type": "string" },
+            "notes": { "type": "string" }
+          }
+        }
+      },
+      "key_details": {
+        "type": "object",
+        "description": "Key details from the three-way match",
+        "properties": {
+          "contract_number_purchase_order": { "type": "string" },
+          "contract_number_invoice": { "type": "string" },
+          "contract_number_goods_receipt": { "type": "string" },
+          "invoice_number_invoice": { "type": "string" },
+          "invoice_number_goods_receipt": { "type": "string" },
+          "vendor_invoice": { "type": "string" },
+          "vendor_goods_receipt": { "type": "string" },
+          "vendor_purchase_order": { "type": "string" },
+          "currency_po": { "type": "string" },
+          "currency_invoice": { "type": "string" },
+          "currency_goods_receipt": { "type": "string" },
+          "total_amount_po": { "type": "string" },
+          "total_amount_invoice": { "type": "string" },
+          "total_amount_goods_receipt": { "type": "string" },
+          "acceptance_date": { "type": "string" },
+          "invoice_date": { "type": "string" },
+          "shipment_reference": { "type": "string" },
+          "delivery_point": { "type": "string" },
+          "rejection_reason": { "type": "array", "items": { "type": "string" } },
+          "missingGoodsReceipt": { "type": "string" },
+          "verification_summary": { "type": "string" }
+        }
+      }
+    }
+  },
+  "outputs": {
+    "type": "object",
+    "properties": {
+      "reviewerComments": {
+        "type": "string",
+        "description": "Comments from the reviewer"
+      }
+    }
+  },
+  "inOuts": {
+    "type": "object",
+    "properties": {}
+  },
+  "outcomes": {
+    "type": "object",
+    "properties": {
+      "Process": {
+        "type": "boolean",
+        "description": "Process the invoice"
+      },
+      "Reject": {
+        "type": "boolean",
+        "description": "Reject the invoice"
+      }
+    }
+  }
+}

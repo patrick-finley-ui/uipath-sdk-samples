@@ -13,7 +13,7 @@ interface DashboardProps {
   sdk: UiPath;
 }
 
-const ENTITY_UUID = '9f8f532a-a6ae-f011-8e61-002248862cce';
+const ENTITY_UUID =  import.meta.env.VITE_UIPATH_ENTITY_ID || '4ae5561a-adda-f011-8d4c-000d3add7f02';
 
 export const Dashboard = ({ sdk }: DashboardProps) => {
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
@@ -186,12 +186,14 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
         ? Number(import.meta.env.VITE_MAESTRO_FOLDER_KEY_ID)
         : 2495996;
 
-      const BUCKET_ID = 101519;
-      const BUCKET_FOLDER_ID = 2500475;
+      // const BUCKET_ID =  import.meta.env.VITE_UIPATH_BUCKET_ID;;
+      // const BUCKET_FOLDER_ID = import.meta.env.VITE_UIPATH_BUCKET_FOLDER_ID;
 
-      let uploadedFilePath = invoiceFilePath;
+      // let uploadedFilePath = invoiceFilePath;
 
       // Upload file to bucket if a file was uploaded
+      // COMMENTED OUT - Backend file upload removed
+      /*
       if (uploadedFile) {
         console.log('📤 Uploading file to bucket:', uploadedFile.name);
 
@@ -213,6 +215,7 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
           throw new Error(`Failed to upload file: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`);
         }
       }
+      */
 
       const requestPayload = {
         processKey: processKey,
@@ -222,7 +225,6 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
         inputArguments: JSON.stringify({
           InvoiceFilePath: invoiceFilePath,
           SendToEmail: sendToEmail,
-          invoiceFile: uploadedFilePath,
         }),
         requiresUserInteraction: false,
       };
