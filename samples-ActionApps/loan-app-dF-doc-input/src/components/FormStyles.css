@@ -1,0 +1,114 @@
+/* Modern UI Enhancements */
+
+/* Accept button with gradient */
+.btn-accept {
+  background: linear-gradient(135deg, #0067DF 0%, #0052b3 100%);
+  box-shadow: 0 4px 14px rgba(0, 103, 223, 0.25);
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-accept:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0052b3 0%, #003d8a 100%);
+  box-shadow: 0 6px 20px rgba(0, 103, 223, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-accept:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Reject button with gradient */
+.btn-reject {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-reject:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-reject:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Tab animation */
+.tab-fade-in {
+  animation: tabFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Input focus ring */
+.input-focus:focus {
+  outline: none;
+  border-color: #0067DF;
+  box-shadow: 0 0 0 4px rgba(0, 103, 223, 0.1);
+}
+
+.input-focus:hover:not(:focus) {
+  border-color: #64748b;
+}
+
+/* PDF nav buttons */
+.btn-pdf-nav {
+  background: linear-gradient(135deg, #0067DF 0%, #0052b3 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-pdf-nav:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0052b3 0%, #003d8a 100%);
+  box-shadow: 0 4px 12px rgba(0, 103, 223, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Status badge pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.status-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading spinner */
+.spinner {
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
