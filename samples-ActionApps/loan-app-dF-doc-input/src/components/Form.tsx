@@ -115,7 +115,15 @@ const Form = () => {
           // Ensure loanBucketStorageId is stored as a number (convert from string if needed)
           loanBucketStorageId: typeof data.data.loanBucketStorageId === 'string'
             ? parseInt(data.data.loanBucketStorageId, 10)
-            : data.data.loanBucketStorageId || 0
+            : data.data.loanBucketStorageId || 0,
+          // Ensure riskFactor is always a string (never null/undefined) to keep Select controlled
+          riskFactor: data.data.riskFactor || '',
+          // Ensure other string fields are never null/undefined
+          applicantName: data.data.applicantName || '',
+          loanAmount: data.data.loanAmount || '',
+          creditScore: data.data.creditScore || '',
+          reviewerComments: data.data.reviewerComments || '',
+          loanDocumentStorageBucket: data.data.loanDocumentStorageBucket || ''
         };
         setFormData(processedData);
       }
@@ -427,7 +435,7 @@ const Form = () => {
           setSelectedTabs([activeTab, 'review']);
         }
         // Entering multi-select mode - keep current active tab
-        
+        setPdfScale(1.00)
       } else {
         // Exiting multi-select mode - set active tab to first selected
         if (selectedTabs.length > 0) {
@@ -435,8 +443,10 @@ const Form = () => {
           if (firstTab) {
             setActiveTab(firstTab);
             setSelectedTabs([firstTab]);
+
           }
         }
+        setPdfScale(1.40)
       }
       return !prev;
     });
@@ -706,7 +716,7 @@ const Form = () => {
             size="sm"
             onClick={toggleMultiSelectMode}
           >
-            {isMultiSelectMode ? 'Single View' : 'Multi-View (Max 2)'}
+            {isMultiSelectMode ? 'Single View' : 'Split View'}
           </Button>
         </div>
       </div>
