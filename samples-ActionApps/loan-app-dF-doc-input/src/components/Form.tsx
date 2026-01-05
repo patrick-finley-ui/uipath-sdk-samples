@@ -96,6 +96,14 @@ const Form = () => {
   const [availableDocuments, setAvailableDocuments] = useState<DocumentAttachment[]>([]);
   const [isLoadingDocumentList, setIsLoadingDocumentList] = useState(false);
 
+  // Pagination for documents
+  const [documentPage, setDocumentPage] = useState(1);
+  const documentsPerPage = 5;
+
+  // Pagination for loan history
+  const [historyPage, setHistoryPage] = useState(1);
+  const historyPerPage = 10;
+
   // Store data received from UiPath Action Center (org info, auth tokens, etc.)
   const [actionCenterData, setActionCenterData] = useState<any>(null);
 
@@ -424,6 +432,63 @@ const Form = () => {
     }
   };
 
+  // Get document icon based on file extension
+  const getDocumentIcon = (fileName: string) => {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    const iconClass = "w-5 h-5";
+
+    switch (ext) {
+      case 'pdf':
+        return (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <path d="M9 13h6M9 17h6"></path>
+          </svg>
+        );
+      case 'doc':
+      case 'docx':
+        return (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <line x1="10" y1="9" x2="8" y2="9"></line>
+          </svg>
+        );
+      case 'xls':
+      case 'xlsx':
+        return (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="8" y1="13" x2="16" y2="13"></line>
+            <line x1="8" y1="17" x2="16" y2="17"></line>
+            <line x1="12" y1="11" x2="12" y2="19"></line>
+          </svg>
+        );
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+        );
+      default:
+        return (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        );
+    }
+  };
+
   // Toggle multi-select mode
   const toggleMultiSelectMode = () => {
     setIsMultiSelectMode(prev => {
@@ -492,7 +557,12 @@ const Form = () => {
                 </div>
                 {formData.aiAgentHTML && (
                   <div className="mt-6 pt-6 border-t">
-                    <h3 className="text-lg font-bold mb-4">AI Agent Analysis</h3>
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className="text-lg font-bold">AI Agent Analysis</h3>
+                      <svg width="28" height="28" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M23.832 15.166H22.7487C22.7487 10.9735 19.3579 7.58268 15.1654 7.58268H14.082V6.20685C14.732 5.83852 15.1654 5.13435 15.1654 4.33268C15.1654 3.14102 14.2012 2.16602 12.9987 2.16602C11.7962 2.16602 10.832 3.14102 10.832 4.33268C10.832 5.13435 11.2654 5.83852 11.9154 6.20685V7.58268H10.832C6.63953 7.58268 3.2487 10.9735 3.2487 15.166H2.16536C1.56953 15.166 1.08203 15.6535 1.08203 16.2493V19.4993C1.08203 20.0952 1.56953 20.5827 2.16536 20.5827H3.2487V21.666C3.2487 22.8685 4.2237 23.8327 5.41536 23.8327H20.582C21.7845 23.8327 22.7487 22.8685 22.7487 21.666V20.5827H23.832C24.4279 20.5827 24.9154 20.0952 24.9154 19.4993V16.2493C24.9154 15.6535 24.4279 15.166 23.832 15.166ZM22.7487 18.416H20.582V21.666H5.41536V18.416H3.2487V17.3327H5.41536V15.166C5.41536 12.176 7.84203 9.74935 10.832 9.74935H15.1654C18.1554 9.74935 20.582 12.176 20.582 15.166V17.3327H22.7487V18.416ZM9.20703 14.6243L11.7637 17.181L10.4854 18.4594L9.20703 17.181L7.9287 18.4594L6.65036 17.181L9.20703 14.6243ZM16.7904 14.6243L19.347 17.181L18.0687 18.4594L16.7904 17.181L15.512 18.4594L14.2337 17.181L16.7904 14.6243Z" fill="#273139"></path>
+                      </svg>
+                    </div>
                     <div className="prose prose-sm max-w-none bg-muted rounded-lg p-4" dangerouslySetInnerHTML={{ __html: formData.aiAgentHTML }} />
                   </div>
                 )}
@@ -536,12 +606,17 @@ const Form = () => {
         );
 
       case 'applicant':
+        const totalHistoryPages = Math.ceil(loanHistory.length / historyPerPage);
+        const startHistoryIndex = (historyPage - 1) * historyPerPage;
+        const endHistoryIndex = startHistoryIndex + historyPerPage;
+        const paginatedHistory = loanHistory.slice(startHistoryIndex, endHistoryIndex);
+
         return (
           <Card className="border-2">
             <CardHeader>
               <CardTitle className="text-2xl">Loan History</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {isLoadingHistory ? (
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                   <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -550,38 +625,77 @@ const Form = () => {
               ) : loanHistory.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground bg-muted rounded-lg">No loan history available in Data Fabric</div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Loan Type</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Processing Date</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loanHistory.map((loan) => (
-                      <TableRow key={loan.id}>
-                        <TableCell className="font-medium">{loan.loanType}</TableCell>
-                        <TableCell>{loan.amount.toLocaleString()}</TableCell>
-                        <TableCell>{loan.processingDate}</TableCell>
-                        <TableCell>{loan.duration}</TableCell>
-                        <TableCell>
-                          <span className={cn("inline-block px-3 py-1 rounded-full text-xs font-medium", loan.status.toLowerCase() === 'approved' && "bg-green-100 text-green-800", loan.status.toLowerCase() === 'pending' && "bg-yellow-100 text-yellow-800", loan.status.toLowerCase() === 'rejected' && "bg-red-100 text-red-800", !['approved', 'pending', 'rejected'].includes(loan.status.toLowerCase()) && "bg-slate-100 text-slate-800")}>
-                            {loan.status}
-                          </span>
-                        </TableCell>
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Loan Type</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Processing Date</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Status</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedHistory.map((loan) => (
+                        <TableRow key={loan.id}>
+                          <TableCell className="font-medium">{loan.loanType}</TableCell>
+                          <TableCell>{loan.amount.toLocaleString()}</TableCell>
+                          <TableCell>{loan.processingDate}</TableCell>
+                          <TableCell>{loan.duration}</TableCell>
+                          <TableCell>
+                            <span className={cn("inline-block px-3 py-1 rounded-full text-xs font-medium", loan.status.toLowerCase() === 'approved' && "bg-green-100 text-green-800", loan.status.toLowerCase() === 'pending' && "bg-yellow-100 text-yellow-800", loan.status.toLowerCase() === 'rejected' && "bg-red-100 text-red-800", !['approved', 'pending', 'rejected'].includes(loan.status.toLowerCase()) && "bg-slate-100 text-slate-800")}>
+                              {loan.status}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+
+                  {/* Pagination Controls */}
+                  {totalHistoryPages > 1 && (
+                    <div className="flex items-center justify-between px-2">
+                      <div className="text-sm text-muted-foreground">
+                        Showing {startHistoryIndex + 1}-{Math.min(endHistoryIndex, loanHistory.length)} of {loanHistory.length} records
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setHistoryPage(prev => Math.max(1, prev - 1))}
+                          disabled={historyPage === 1}
+                        >
+                          Previous
+                        </Button>
+                        <span className="text-sm font-medium min-w-[100px] text-center">
+                          Page {historyPage} of {totalHistoryPages}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setHistoryPage(prev => Math.min(totalHistoryPages, prev + 1))}
+                          disabled={historyPage === totalHistoryPages}
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
         );
 
       case 'application':
+        const totalDocPages = Math.ceil(availableDocuments.length / documentsPerPage);
+        const startDocIndex = (documentPage - 1) * documentsPerPage;
+        const endDocIndex = startDocIndex + documentsPerPage;
+        const paginatedDocuments = availableDocuments.slice(startDocIndex, endDocIndex);
+
         return (
           <Card className="border-2">
             <CardHeader>
@@ -615,28 +729,78 @@ const Form = () => {
                           <p>Loading document list...</p>
                         </div>
                       ) : (
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="w-12"></TableHead>
-                              <TableHead>Document Name</TableHead>
-                              <TableHead>Size</TableHead>
-                              <TableHead>Upload Date</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {availableDocuments.map((doc, index) => (
-                              <TableRow key={index} className={cn("cursor-pointer transition-colors", selectedDocumentIndex === index ? "bg-primary/10 hover:bg-primary/15 border-l-4 border-l-primary" : "hover:bg-muted/50")} onClick={() => handleDocumentSelect(index)}>
-                                <TableCell className="text-center">
-                                  {selectedDocumentIndex === index && <div className="w-2 h-2 rounded-full bg-primary mx-auto"></div>}
-                                </TableCell>
-                                <TableCell className="font-medium">{doc.name}</TableCell>
-                                <TableCell className="text-muted-foreground">{doc.size || 'N/A'}</TableCell>
-                                <TableCell className="text-muted-foreground">{doc.uploadDate || 'N/A'}</TableCell>
+                        <div className="space-y-4">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="w-12"></TableHead>
+                                <TableHead className="w-12"></TableHead>
+                                <TableHead>Document Name</TableHead>
+                                <TableHead>Size</TableHead>
+                                <TableHead>Upload Date</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {paginatedDocuments.map((doc, index) => {
+                                const actualIndex = startDocIndex + index;
+                                return (
+                                  <TableRow
+                                    key={actualIndex}
+                                    className={cn(
+                                      "cursor-pointer transition-colors",
+                                      selectedDocumentIndex === actualIndex
+                                        ? "bg-primary/10 hover:bg-primary/15 border-l-4 border-l-primary"
+                                        : "hover:bg-muted/50"
+                                    )}
+                                    onClick={() => handleDocumentSelect(actualIndex)}
+                                  >
+                                    <TableCell className="text-center">
+                                      {selectedDocumentIndex === actualIndex && <div className="w-2 h-2 rounded-full bg-primary mx-auto"></div>}
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground">
+                                      {getDocumentIcon(doc.name)}
+                                    </TableCell>
+                                    <TableCell className="font-medium">{doc.name}</TableCell>
+                                    <TableCell className="text-muted-foreground">{doc.size || 'N/A'}</TableCell>
+                                    <TableCell className="text-muted-foreground">{doc.uploadDate || 'N/A'}</TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+
+                          {/* Pagination Controls */}
+                          {totalDocPages > 1 && (
+                            <div className="flex items-center justify-between px-2 pb-2">
+                              <div className="text-sm text-muted-foreground">
+                                Showing {startDocIndex + 1}-{Math.min(endDocIndex, availableDocuments.length)} of {availableDocuments.length} documents
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setDocumentPage(prev => Math.max(1, prev - 1))}
+                                  disabled={documentPage === 1}
+                                >
+                                  Previous
+                                </Button>
+                                <span className="text-sm font-medium min-w-[100px] text-center">
+                                  Page {documentPage} of {totalDocPages}
+                                </span>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setDocumentPage(prev => Math.min(totalDocPages, prev + 1))}
+                                  disabled={documentPage === totalDocPages}
+                                >
+                                  Next
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </CollapsibleContent>
                   </div>
@@ -765,8 +929,8 @@ const Form = () => {
               className={cn(
                 "px-8 py-4 text-base font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
                 selectedTabs.includes('review')
-                  ? "bg-background text-foreground shadow"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "!bg-background text-foreground shadow"
+                  : "!text-muted-foreground hover:text-foreground"
               )}
               onClick={() => handleTabToggle('review')}
             >
@@ -777,8 +941,8 @@ const Form = () => {
               className={cn(
                 "px-8 py-4 text-base font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
                 selectedTabs.includes('applicant')
-                  ? "bg-background text-foreground shadow"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "!bg-background text-foreground shadow"
+                  : "!text-muted-foreground hover:text-foreground"
               )}
               onClick={() => handleTabToggle('applicant')}
             >
@@ -789,8 +953,8 @@ const Form = () => {
               className={cn(
                 "px-8 py-4 text-base font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
                 selectedTabs.includes('application')
-                  ? "bg-background text-foreground shadow"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "!bg-background text-foreground shadow"
+                  : "!text-muted-foreground hover:text-foreground"
               )}
               onClick={() => handleTabToggle('application')}
             >

@@ -1,8 +1,8 @@
 {
-  "name": "PDF_loan",
-  "version": "1.0.0",
-  "description": "UiPath package for PDF_loan",
+  "name": "InvoiceReview",
+  "version": "2.0.0",
+  "description": "test",
   "author": "UiPath Developer",
   "contentType": "webapp",
-  "createdAt": "2025-12-08T20:36:18.801Z"
+  "createdAt": "2025-12-18T01:50:19.265Z"
 }
