@@ -929,8 +929,8 @@ const Form = () => {
               className={cn(
                 "px-8 py-4 text-base font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
                 selectedTabs.includes('review')
-                  ? "!bg-background text-foreground shadow"
-                  : "!text-muted-foreground hover:text-foreground"
+                  ? "!bg-background !text-foreground shadow"
+                  : "text-muted-foreground hover:text-foreground"
               )}
               onClick={() => handleTabToggle('review')}
             >
@@ -941,8 +941,8 @@ const Form = () => {
               className={cn(
                 "px-8 py-4 text-base font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
                 selectedTabs.includes('applicant')
-                  ? "!bg-background text-foreground shadow"
-                  : "!text-muted-foreground hover:text-foreground"
+                  ? "!bg-background !text-foreground shadow"
+                  : "text-muted-foreground hover:text-foreground"
               )}
               onClick={() => handleTabToggle('applicant')}
             >
@@ -953,8 +953,8 @@ const Form = () => {
               className={cn(
                 "px-8 py-4 text-base font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
                 selectedTabs.includes('application')
-                  ? "!bg-background text-foreground shadow"
-                  : "!text-muted-foreground hover:text-foreground"
+                  ? "!bg-background !text-foreground shadow"
+                  : "text-muted-foreground hover:text-foreground"
               )}
               onClick={() => handleTabToggle('application')}
             >
