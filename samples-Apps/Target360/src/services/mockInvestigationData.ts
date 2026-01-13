@@ -1,4 +1,4 @@
-import type { InvestigationSubject, InvestigationCheck } from '../types/investigation';
+import type { InvestigationSubject, InvestigationCheck, CaseStatus } from '../types/investigation';
 
 const generateChecks = (isHighRisk: boolean): InvestigationCheck[] => {
   const now = new Date().toISOString();
@@ -221,7 +221,7 @@ export const getMockSubjects = (): InvestigationSubject[] => {
       nationality: 'Mexico',
       passportNumber: 'M99283741',
       riskLevel: 'High',
-      status: 'Completed',
+      status: 'Completed' as CaseStatus,
       flaggedChecks: 8,
       totalChecks: 10,
       lastUpdated: new Date().toISOString(),
@@ -236,7 +236,7 @@ export const getMockSubjects = (): InvestigationSubject[] => {
       nationality: 'USA',
       passportNumber: 'A55667788',
       riskLevel: 'Low',
-      status: 'Completed',
+      status: 'Completed' as CaseStatus,
       flaggedChecks: 0,
       totalChecks: 10,
       lastUpdated: new Date().toISOString(),
@@ -251,7 +251,7 @@ export const getMockSubjects = (): InvestigationSubject[] => {
       nationality: 'Canada',
       passportNumber: 'C12345678',
       riskLevel: 'Medium',
-      status: 'In Progress',
+      status: 'Analyst Review' as CaseStatus,
       flaggedChecks: 2,
       totalChecks: 10,
       lastUpdated: new Date().toISOString(),
