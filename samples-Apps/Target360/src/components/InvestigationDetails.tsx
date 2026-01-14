@@ -71,18 +71,26 @@ export const InvestigationDetails = ({
       // Determine file paths based on risk level
       const isHighRisk = investigation.overallRisk === 'High';
       const passportPath = isHighRisk ? '/sergei_passport3.jpg' : '/minapark_passport.jpg';
+      const subjectPhotoPath = isHighRisk ? '/Sergei_Volkov_Headshot.png' : '/Mina_Park_Headshot.png';
       const financialPath = '/SergeiVolkov_Quarterly financial report overview.jpg';
 
-      // Fetch passport document (also used as subject photo)
+      // Fetch passport document
       const passportUrl = await sdk.buckets.getReadUri({
         bucketId: BUCKET_ID,
         folderId: FOLDER_ID,
         path: passportPath,
       });
 
+      // Fetch subject photo
+      const subjectPhotoUrl = await sdk.buckets.getReadUri({
+        bucketId: BUCKET_ID,
+        folderId: FOLDER_ID,
+        path: subjectPhotoPath,
+      });
+
       const urls: any = {
         passport: passportUrl.uri,
-        subjectPhoto: passportUrl.uri // Same as passport for now
+        subjectPhoto: subjectPhotoUrl.uri
       };
 
       // Fetch financial document
@@ -111,14 +119,14 @@ export const InvestigationDetails = ({
   // Handle escape key to close modal
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !modalImage) {
         onClose();
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
+  }, [onClose, modalImage]);
 
 
 
@@ -233,27 +241,6 @@ export const InvestigationDetails = ({
           <div className="grid grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-6">
-              {/* Subject Photo */}
-              {documentUrls.subjectPhoto && (
-                <div className="bg-[#252836] rounded-lg border border-gray-700 p-6">
-                  <div className="flex justify-center">
-                    <div className="relative">
-                      <img
-                        src={documentUrls.subjectPhoto}
-                        alt="Subject Photo"
-                        className="w-40 h-40 object-cover rounded-lg border-2 border-gray-600 shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => setModalImage({ url: documentUrls.subjectPhoto!, title: 'Subject Photo' })}
-                      />
-                      {loadingDocuments && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
-                          <div className="animate-spin rounded-full h-8 w-8 border-4 border-gray-700 border-t-red-500"></div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Subject Profile */}
               <div className="bg-[#252836] rounded-lg border border-gray-700 p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -262,27 +249,45 @@ export const InvestigationDetails = ({
                   </svg>
                   Subject Profile
                 </h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wide">Full Name</label>
-                    <p className="text-white font-medium mt-1">{investigation.subjectName}</p>
+                <div className="grid grid-cols-[1fr_auto] gap-6">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="text-xs text-gray-400 uppercase tracking-wide">Full Name</label>
+                      <p className="text-white font-medium mt-1">{investigation.subjectName}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 uppercase tracking-wide">Date of Birth</label>
+                      <p className="text-white font-medium mt-1">{investigation.subjectDob || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 uppercase tracking-wide">Nationality</label>
+                      <p className="text-white font-medium mt-1">{investigation.subjectNationality}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 uppercase tracking-wide">Government ID / Passport</label>
+                      <p className="text-white font-medium mt-1 font-mono">{investigation.subjectId}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-400 uppercase tracking-wide">Internal Subject ID</label>
+                      <p className="text-white font-medium mt-1 font-mono">{investigation.id}</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wide">Date of Birth</label>
-                    <p className="text-white font-medium mt-1">{investigation.subjectDob || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wide">Nationality</label>
-                    <p className="text-white font-medium mt-1">{investigation.subjectNationality}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wide">Government ID / Passport</label>
-                    <p className="text-white font-medium mt-1 font-mono">{investigation.subjectId}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wide">Internal Subject ID</label>
-                    <p className="text-white font-medium mt-1 font-mono">{investigation.id}</p>
-                  </div>
+                  {/* Subject Photo - Headshot Style */}
+                  {documentUrls.subjectPhoto && (
+                    <div className="relative flex-shrink-0">
+                      <img
+                        src={documentUrls.subjectPhoto}
+                        alt="Subject Photo"
+                        className="w-32 h-40 object-cover rounded-lg border-2 border-gray-600 shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setModalImage({ url: documentUrls.subjectPhoto!, title: 'Subject Photo' })}
+                      />
+                      {loadingDocuments && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                          <div className="animate-spin rounded-full h-8 w-8 border-4 border-gray-700 border-t-red-500"></div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

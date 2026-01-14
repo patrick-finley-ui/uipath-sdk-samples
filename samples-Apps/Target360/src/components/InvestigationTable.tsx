@@ -90,7 +90,7 @@ export const InvestigationTable = ({ investigations, currentPage, totalPages, on
         );
       } else {
         return (
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         );
@@ -261,11 +261,13 @@ export const InvestigationTable = ({ investigations, currentPage, totalPages, on
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800">
-            {investigations.map((investigation) => (
+            {investigations.map((investigation) => {
+              const hasRisk = investigation.overallRisk && investigation.overallRisk.trim() !== '';
+              return (
               <tr
                 key={investigation.id}
-                className="hover:bg-gray-800/50 transition-colors cursor-pointer"
-                onClick={() => onInvestigationClick?.(investigation)}
+                className={`transition-colors ${hasRisk ? 'hover:bg-gray-800/50 cursor-pointer' : 'opacity-60 cursor-not-allowed'}`}
+                onClick={() => hasRisk && onInvestigationClick?.(investigation)}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
@@ -335,8 +337,12 @@ export const InvestigationTable = ({ investigations, currentPage, totalPages, on
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                   <button
-                    onClick={() => onInvestigationClick?.(investigation)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${investigation.caseStatus === 'Completed'
+                    onClick={() => hasRisk && onInvestigationClick?.(investigation)}
+                    disabled={!hasRisk}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      !hasRisk
+                        ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+                        : investigation.caseStatus === 'Completed'
                         ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                         : 'bg-red-500 text-white hover:bg-red-600'
                       }`}
@@ -345,7 +351,8 @@ export const InvestigationTable = ({ investigations, currentPage, totalPages, on
                   </button>
                 </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>

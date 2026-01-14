@@ -27,7 +27,7 @@ export const ImageModal = ({ imageUrl, title, isOpen, onClose }: ImageModalProps
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
