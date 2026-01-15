@@ -142,7 +142,7 @@ const generateChecks = (
 				agency: "CBP",
 				status: "Warning",
 				details:
-					'Name collision with "Anna Lee" (different DOB). Flagged for manual review.',
+					'Name collision with "Mina Park" (different DOB). Flagged for manual review.',
 				timestamp: now,
 				documentName:
 					"CBP_POE_PersonsOfInterest.csv",

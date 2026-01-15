@@ -1,12 +1,17 @@
+import type { RiskLevel, CaseStatus } from '../types/investigation';
+
 interface SidebarProps {
   activeView: string;
   onViewChange: (view: string) => void;
   highRiskCount: number;
   inProgressCount: number;
   completedCount: number;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  onFilterClick?: (filterType: 'risk' | 'status', filterValue: RiskLevel | CaseStatus) => void;
 }
 
-export const Sidebar = ({ activeView, onViewChange, highRiskCount, inProgressCount, completedCount }: SidebarProps) => {
+export const Sidebar = ({ activeView, onViewChange, highRiskCount, inProgressCount, completedCount, searchQuery, onSearchChange, onFilterClick }: SidebarProps) => {
   const navItems = [
     {
       id: 'dashboard',
@@ -90,6 +95,8 @@ export const Sidebar = ({ activeView, onViewChange, highRiskCount, inProgressCou
           <input
             type="text"
             placeholder="Search cases..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
             className="w-full bg-[#0f1117] border border-gray-700 rounded-md pl-9 pr-3 py-2 text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -100,7 +107,23 @@ export const Sidebar = ({ activeView, onViewChange, highRiskCount, inProgressCou
         {navItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => onViewChange(item.id)}
+            onClick={() => {
+              console.log('Sidebar item clicked:', item.id, 'onFilterClick exists:', !!onFilterClick);
+              onViewChange(item.id);
+              // Trigger filters for High Risk, In Progress, and Completed
+              if (onFilterClick) {
+                if (item.id === 'high-risk') {
+                  console.log('Calling onFilterClick for high-risk');
+                  onFilterClick('risk', 'High' as RiskLevel);
+                } else if (item.id === 'in-progress') {
+                  console.log('Calling onFilterClick for in-progress');
+                  onFilterClick('status', 'Analyst Review' as CaseStatus);
+                } else if (item.id === 'completed') {
+                  console.log('Calling onFilterClick for completed');
+                  onFilterClick('status', 'Completed' as CaseStatus);
+                }
+              }
+            }}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors ${
               activeView === item.id
                 ? 'bg-red-500 text-white'

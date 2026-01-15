@@ -29,10 +29,11 @@ export const mapEntityToInvestigation = (entity: TargetInvestigationEntity): Inv
     subjectId: entity.subjectId || 'unknown',
     subjectName,
     subjectNationality: entity.subjectNationality || 'Unknown',
+    subjectDob: entity.subjectDob,
     overallRisk: entity.risk as RiskLevel,
- 
+
     caseStatus: entity.caseStatus as CaseStatus,
-    flaggedChecks,  
+    flaggedChecks,
     totalChecks: 10, // Defa  ult to 10, can be made configurable
     primaryRiskDrivers: parseRiskDrivers(entity.primaryRiskDrivers),
     intelSummary: entity.aiSummary || 'No summary available',

@@ -71,10 +71,12 @@ export const FilterControls = ({ filters, onFiltersChange, onClearFilters }: Fil
       ? currentValues.filter((v: string) => v !== option)
       : [...currentValues, option];
 
-    onFiltersChange({
+    const updatedFilters = {
       ...filters,
       [filterName]: newValues,
-    });
+    };
+    console.log('FilterControls: Updating filters', updatedFilters);
+    onFiltersChange(updatedFilters);
   };
 
   const getActiveCount = (filterName: string) => {

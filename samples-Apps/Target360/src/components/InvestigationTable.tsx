@@ -9,6 +9,7 @@ interface InvestigationTableProps {
   investigations: Investigation[];
   currentPage: number;
   totalPages: number;
+  totalInvestigations: number;
   onPageChange: (page: number) => void;
   onInvestigationClick?: (investigation: Investigation) => void;
   sortField: SortField;
@@ -16,7 +17,7 @@ interface InvestigationTableProps {
   onSortChange: (field: SortField, direction: SortDirection) => void;
 }
 
-export const InvestigationTable = ({ investigations, currentPage, totalPages, onPageChange, onInvestigationClick, sortField, sortDirection, onSortChange }: InvestigationTableProps) => {
+export const InvestigationTable = ({ investigations, currentPage, totalPages, totalInvestigations, onPageChange, onInvestigationClick, sortField, sortDirection, onSortChange }: InvestigationTableProps) => {
   // Get process definition key from environment
   const PROCESS_DEFINITION_KEY = import.meta.env.VITE_MAESTRO_PROCESS_KEY;
 
@@ -151,7 +152,7 @@ export const InvestigationTable = ({ investigations, currentPage, totalPages, on
     return (
       <div className="flex items-center justify-between px-6 py-4 border-t border-gray-800">
         <p className="text-sm text-gray-400">
-          Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, investigations.length)} of {investigations.length} investigations
+          Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, totalInvestigations)} of {totalInvestigations} investigations
         </p>
         <div className="flex items-center gap-2">
           <button

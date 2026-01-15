@@ -1,10 +1,11 @@
-import type { InvestigationKPIs } from '../types/investigation';
+import type { InvestigationKPIs, RiskLevel, CaseStatus } from '../types/investigation';
 
 interface KPICardsProps {
   kpis: InvestigationKPIs;
+  onFilterClick?: (filterType: 'risk' | 'status', filterValue: RiskLevel | CaseStatus) => void;
 }
 
-export const KPICards = ({ kpis }: KPICardsProps) => {
+export const KPICards = ({ kpis, onFilterClick }: KPICardsProps) => {
   const cards = [
     {
       label: 'TOTAL CASES',
@@ -16,6 +17,7 @@ export const KPICards = ({ kpis }: KPICardsProps) => {
       ),
       bgColor: 'bg-[#252836]',
       iconBg: 'bg-gray-700/30',
+      clickable: false,
     },
     {
       label: 'HIGH RISK',
@@ -27,6 +29,9 @@ export const KPICards = ({ kpis }: KPICardsProps) => {
       ),
       bgColor: 'bg-[#252836]',
       iconBg: 'bg-red-500/10',
+      clickable: true,
+      filterType: 'risk' as const,
+      filterValue: 'High' as RiskLevel,
     },
     {
       label: 'IN PROGRESS',
@@ -38,6 +43,9 @@ export const KPICards = ({ kpis }: KPICardsProps) => {
       ),
       bgColor: 'bg-[#252836]',
       iconBg: 'bg-orange-500/10',
+      clickable: true,
+      filterType: 'status' as const,
+      filterValue: 'Analyst Review' as CaseStatus,
     },
     {
       label: 'COMPLETED TODAY',
@@ -49,6 +57,9 @@ export const KPICards = ({ kpis }: KPICardsProps) => {
       ),
       bgColor: 'bg-[#252836]',
       iconBg: 'bg-green-500/10',
+      clickable: true,
+      filterType: 'status' as const,
+      filterValue: 'Completed' as CaseStatus,
     },
     {
       label: 'OVERRIDES',
@@ -60,15 +71,27 @@ export const KPICards = ({ kpis }: KPICardsProps) => {
       ),
       bgColor: 'bg-[#252836]',
       iconBg: 'bg-gray-700/30',
+      clickable: false,
     },
   ];
+
+  const handleCardClick = (card: typeof cards[0]) => {
+    if (card.clickable && card.filterType && card.filterValue && onFilterClick) {
+      onFilterClick(card.filterType, card.filterValue);
+    }
+  };
 
   return (
     <div className="grid grid-cols-5 gap-4">
       {cards.map((card, index) => (
         <div
           key={index}
-          className={`${card.bgColor} rounded-lg p-4 border border-gray-800 hover:border-gray-700 transition-colors`}
+          onClick={() => handleCardClick(card)}
+          className={`${card.bgColor} rounded-lg p-4 border border-gray-800 transition-all ${
+            card.clickable
+              ? 'hover:border-gray-600 hover:bg-[#2a2e3f] cursor-pointer hover:shadow-lg'
+              : 'hover:border-gray-700'
+          }`}
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-gray-400 tracking-wide">

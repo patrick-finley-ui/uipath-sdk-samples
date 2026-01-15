@@ -50,6 +50,7 @@ export interface TargetInvestigationEntity {
   subjectId?: string;
   subjectNationality?: string;
   subjectName?: string;
+  subjectDob?: string;
   caseStatus?: string;
   numChecksFlagged?: number;
   aiSummary?: string;

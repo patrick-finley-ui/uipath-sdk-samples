@@ -168,6 +168,7 @@ export const InvestigationDetails = ({
   const outcomeCounts = getCheckOutcomeCounts();
   const agentRecommendation = processDetails.agentOutput?.output?.overall_assessment?.risk_level || investigation.overallRisk;
   const riskContent = getRiskContent(investigation.overallRisk);
+  const isHighRisk = investigation.overallRisk === 'High';
 
   return createPortal(
     <div
@@ -249,8 +250,8 @@ export const InvestigationDetails = ({
                   </svg>
                   Subject Profile
                 </h3>
-                <div className="grid grid-cols-[1fr_auto] gap-6">
-                  <div className="grid grid-cols-1 gap-4">
+                <div className="flex gap-6 items-center">
+                  <div className="flex-1 grid grid-cols-1 gap-4">
                     <div>
                       <label className="text-xs text-gray-400 uppercase tracking-wide">Full Name</label>
                       <p className="text-white font-medium mt-1">{investigation.subjectName}</p>
@@ -375,7 +376,7 @@ export const InvestigationDetails = ({
               </div>
 
               {/* Financial Summary Card */}
-              {documentUrls.financial && (
+              {documentUrls.financial && isHighRisk && (
                 <div className="bg-[#252836] rounded-lg border border-gray-700 p-6">
                   <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

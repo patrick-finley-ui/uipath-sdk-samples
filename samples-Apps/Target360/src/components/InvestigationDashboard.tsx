@@ -25,6 +25,7 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [filters, setFilters] = useState<InvestigationFilters>({
     riskLevels: [],
@@ -135,9 +136,9 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
 
     // Check if SDK is authenticated
     if (!sdk.isAuthenticated()) {
-      setProcessDetails({ 
-        loading: false, 
-        error: 'SDK is not authenticated. Please log in again.' 
+      setProcessDetails({
+        loading: false,
+        error: 'SDK is not authenticated. Please log in again.'
       });
       return;
     }
@@ -148,7 +149,7 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
       // Use folderId as-is (could be string or number, SDK handles both)
       const folderId = investigation.folderId;
       const processInstanceKey = investigation.maestroProcessInstanceKey;
-      
+
       // Validate the process instance key format (should be a UUID)
       if (!processInstanceKey || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(processInstanceKey)) {
         throw new Error(`Invalid process instance key format: ${processInstanceKey}`);
@@ -173,7 +174,7 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
         if (variablesError?.type === 'AuthenticationError' || variablesError?.statusCode === 401) {
           console.warn('⚠️ Could not fetch process variables. Process instance may not exist or you may not have access.');
           console.warn('This is normal for investigations that haven\'t been processed yet or have been deleted.');
-          
+
           // Set empty agentOutput but don't show error - just show that data isn't available
           setProcessDetails({
             agentOutput: undefined,
@@ -203,7 +204,7 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
 
         if (agentOutputVariable) {
           console.log('✅ Found agentOutput/scriptResponse variable:', agentOutputVariable.name);
-          
+
           // The value might be a string (JSON) or already an object
           if (typeof agentOutputVariable.value === 'string') {
             try {
@@ -215,8 +216,8 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
               console.error('Error parsing agentOutput JSON:', e);
             }
           } else if (agentOutputVariable.value && typeof agentOutputVariable.value === 'object') {
-            if (agentOutputVariable.value.type === 'agentOutput' || 
-                (agentOutputVariable.value.output && (agentOutputVariable.value.output.checks || agentOutputVariable.value.output.overall_assessment))) {
+            if (agentOutputVariable.value.type === 'agentOutput' ||
+              (agentOutputVariable.value.output && (agentOutputVariable.value.output.checks || agentOutputVariable.value.output.overall_assessment))) {
               agentOutput = agentOutputVariable.value as AgentOutput;
             }
           }
@@ -229,7 +230,7 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
 
           if (overallAssessmentVar || checksVar) {
             console.log('✅ Found separate assessment/checks variables, constructing agentOutput');
-            
+
             let overallAssessment: any = null;
             let checks: any[] = [];
 
@@ -282,8 +283,8 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
             if (variable.value && variable.value !== null) {
               // Check if it's an object with agentOutput structure
               if (typeof variable.value === 'object' && !Array.isArray(variable.value)) {
-                if (variable.value.type === 'agentOutput' || 
-                    (variable.value.output && (variable.value.output.checks || variable.value.output.overall_assessment))) {
+                if (variable.value.type === 'agentOutput' ||
+                  (variable.value.output && (variable.value.output.checks || variable.value.output.overall_assessment))) {
                   agentOutput = variable.value as AgentOutput;
                   console.log('✅ Found agentOutput in variable:', variable.name);
                   break;
@@ -293,8 +294,8 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
               if (typeof variable.value === 'string' && variable.value.trim().startsWith('{')) {
                 try {
                   const parsed = JSON.parse(variable.value);
-                  if (parsed.type === 'agentOutput' || 
-                      (parsed.output && (parsed.output.checks || parsed.output.overall_assessment))) {
+                  if (parsed.type === 'agentOutput' ||
+                    (parsed.output && (parsed.output.checks || parsed.output.overall_assessment))) {
                     agentOutput = parsed as AgentOutput;
                     console.log('✅ Found agentOutput in JSON string variable:', variable.name);
                     break;
@@ -332,10 +333,10 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
       console.error('Error type:', err?.constructor?.name);
       console.error('Error status:', err?.statusCode || err?.status);
       console.error('Error message:', err?.message);
-      
+
       // Handle AuthenticationError specifically
       let errorMessage = 'Failed to fetch process details';
-      
+
       if (err?.type === 'AuthenticationError' || err?.statusCode === 401 || err?.status === 401) {
         errorMessage = 'Access denied. This process instance may not exist, may have been deleted, or you may not have permission to access it. Please verify the process instance exists and you have the necessary permissions.';
       } else if (err?.message) {
@@ -389,8 +390,8 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
         runAsMe: true,
         jobPriority: JobPriority.Normal,
         inputArguments: JSON.stringify({
-          Target_Name: subjectName,
-          AnalystEmail: analystEmail,
+          subjectName: subjectName,
+          Target_Name: analystEmail,
         }),
         requiresUserInteraction: false,
       };
@@ -457,25 +458,48 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
   }, [sdk]);
 
   const filteredInvestigations = useMemo(() => {
-    return allInvestigations.filter((inv) => {
+    console.log('Filtering with:', {
+      searchQuery,
+      filters,
+      totalInvestigations: allInvestigations.length
+    });
+
+    const result = allInvestigations.filter((inv) => {
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        const matchesName = inv.subjectName.toLowerCase().includes(query);
+        const matchesId = inv.subjectId.toLowerCase().includes(query);
+        if (!matchesName && !matchesId) {
+          return false;
+        }
+      }
+
+      // Risk level filter
       if (filters.riskLevels.length > 0 && !filters.riskLevels.includes(inv.overallRisk)) {
         return false;
       }
+      // Case status filter
       if (filters.caseStatuses.length > 0 && !filters.caseStatuses.includes(inv.caseStatus)) {
         return false;
       }
+      // Data sources filter
       if (filters.dataSources.length > 0) {
         const hasMatchingSource = inv.primaryRiskDrivers.some(driver =>
           filters.dataSources.includes(driver)
         );
         if (!hasMatchingSource) return false;
       }
+      // Decision state filter
       if (filters.decisionStates.length > 0 && !filters.decisionStates.includes(inv.decisionState)) {
         return false;
       }
       return true;
     });
-  }, [allInvestigations, filters]);
+
+    console.log('Filtered results:', result.length);
+    return result;
+  }, [allInvestigations, filters, searchQuery]);
 
   // Sort investigations after filtering
   const sortedInvestigations = useMemo(() => {
@@ -554,6 +578,42 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
     setCurrentPage(1); // Reset to first page when sorting changes
   };
 
+  const handleKPIFilterClick = (filterType: 'risk' | 'status', filterValue: Investigation['overallRisk'] | Investigation['caseStatus']) => {
+    console.log('KPI Filter Clicked:', { filterType, filterValue });
+    if (filterType === 'risk') {
+      // Toggle risk filter
+      setFilters(prev => {
+        const newFilters = {
+          ...prev,
+          riskLevels: prev.riskLevels.includes(filterValue as Investigation['overallRisk'])
+            ? prev.riskLevels.filter(r => r !== filterValue)
+            : [filterValue as Investigation['overallRisk']],
+        };
+        console.log('New filters after risk update:', newFilters);
+        return newFilters;
+      });
+    } else if (filterType === 'status') {
+      // Toggle status filter
+      setFilters(prev => {
+        const newFilters = {
+          ...prev,
+          caseStatuses: prev.caseStatuses.includes(filterValue as Investigation['caseStatus'])
+            ? prev.caseStatuses.filter(s => s !== filterValue)
+            : [filterValue as Investigation['caseStatus']],
+        };
+        console.log('New filters after status update:', newFilters);
+        return newFilters;
+      });
+    }
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  const handleSearchChange = (query: string) => {
+    console.log('Search query changed:', query);
+    setSearchQuery(query);
+    setCurrentPage(1); // Reset to first page when search changes
+  };
+
   const highRiskCount = allInvestigations.filter(inv => inv.overallRisk === 'High').length;
   const inProgressCount = allInvestigations.filter(inv => inv.caseStatus !== 'Completed' && inv.caseStatus !== 'New').length;
   const completedCount = allInvestigations.filter(inv => inv.caseStatus === 'Completed').length;
@@ -604,6 +664,9 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
         highRiskCount={highRiskCount}
         inProgressCount={inProgressCount}
         completedCount={completedCount}
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+        onFilterClick={handleKPIFilterClick}
       />
 
       <div className="flex-1 ml-[200px]">
@@ -665,7 +728,7 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
               </div>
 
               {/* KPI Cards */}
-              <KPICards kpis={kpis} />
+              <KPICards kpis={kpis} onFilterClick={handleKPIFilterClick} />
 
               {/* Filters */}
               <div className="mt-6">
@@ -681,6 +744,7 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
                 investigations={paginatedInvestigations}
                 currentPage={currentPage}
                 totalPages={totalPages}
+                totalInvestigations={sortedInvestigations.length}
                 onPageChange={handlePageChange}
                 onInvestigationClick={handleInvestigationClick}
                 sortField={sortField}
