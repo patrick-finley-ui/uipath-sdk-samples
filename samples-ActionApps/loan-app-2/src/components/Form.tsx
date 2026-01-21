@@ -247,10 +247,10 @@ const Form = () => {
             // Format date
             const formattedDate = item.lastModified
               ? new Date(item.lastModified).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              })
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })
               : 'N/A';
 
             return {

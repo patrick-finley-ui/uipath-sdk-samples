@@ -3,8 +3,7 @@
     "allow": [
       "Bash(mv:*)",
       "Bash(npm run build:*)",
-      "Bash(npm install)",
-      "Bash(git add:*)"
+      "Bash(npm install)"
     ],
     "deny": [],
     "ask": []
