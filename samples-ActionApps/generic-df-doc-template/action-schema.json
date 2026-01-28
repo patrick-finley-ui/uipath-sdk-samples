@@ -1,0 +1,96 @@
+{
+    "inputs": {
+        "type": "object",
+        "properties": {
+            "entityId": {
+                "type": "string",
+                "required": true
+            },
+            "entityFields": {
+                "type": "object",
+                "required": true,
+                "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        },
+                        "mapping": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["label", "mapping"]
+                }
+            },
+            "storageBucketId": {
+                "required": false,
+                "type": "number"
+            },
+            "filePath": {
+                "required": false,
+                "type": "string"
+            },
+            "readOnlyFields": {
+                "type": "object",
+                "required": false,
+                "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["label"]
+                }
+            },
+            "aiAgentHTML": {
+                "required": false,
+                "type": "string"
+            },
+            "outputFields": {
+                "type": "object",
+                "required": true,
+                "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": ["string", "number", "integer", "textarea"]
+                        },
+                        "required": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": ["type"]
+                }
+            }
+        }
+    },
+    "outputs": {
+        "type": "object",
+        "properties": {}
+    },
+    "inOuts": {
+        "type": "object",
+        "properties": {}
+    },
+    "outcomes": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "required": ["type", "label"]
+        }
+    }
+}

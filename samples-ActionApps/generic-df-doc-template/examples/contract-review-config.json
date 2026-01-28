@@ -1,0 +1,74 @@
+{
+  "entityId": "contract-entity-id-here",
+  "entityFields": {
+    "contractNumber": {
+      "label": "Contract Number",
+      "mapping": "contractNumber"
+    },
+    "contractType": {
+      "label": "Contract Type",
+      "mapping": "contractType"
+    },
+    "startDate": {
+      "label": "Start Date",
+      "mapping": "startDate"
+    },
+    "endDate": {
+      "label": "End Date",
+      "mapping": "endDate"
+    },
+    "status": {
+      "label": "Status",
+      "mapping": "status"
+    }
+  },
+  "storageBucketId": 12345,
+  "filePath": "",
+  "readOnlyFields": {
+    "contractId": {
+      "label": "Contract ID",
+      "value": "CNT-2024-001"
+    },
+    "vendor": {
+      "label": "Vendor/Supplier",
+      "value": "Global Services Inc."
+    },
+    "contractValue": {
+      "label": "Contract Value",
+      "value": "250000.00"
+    },
+    "department": {
+      "label": "Department",
+      "value": "Procurement"
+    }
+  },
+  "aiAgentHTML": "<p><strong>AI Analysis:</strong> Contract terms reviewed. All clauses standard. No red flags identified. Legal review completed. Ready for approval.</p>",
+  "outputFields": {
+    "reviewStatus": {
+      "type": "string",
+      "required": true
+    },
+    "reviewerComments": {
+      "type": "textarea",
+      "required": true
+    },
+    "riskLevel": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "outcomes": {
+    "Approve": {
+      "type": "string",
+      "label": "Approve Contract"
+    },
+    "Reject": {
+      "type": "string",
+      "label": "Reject Contract"
+    },
+    "Revise": {
+      "type": "string",
+      "label": "Request Revisions"
+    }
+  }
+}

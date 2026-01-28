@@ -34,7 +34,10 @@ export const InvoiceHeader = ({
       return;
     }
 
-    const url = `https://staging.uipath.com/uipathlabs/Playground/maestro_/processes/${PROCESS_DEFINITION_KEY}/instances/${invoice.maestroProcessKey}?folderKey=${invoice.folderId}`;
+    const baseUrl = import.meta.env.VITE_UIPATH_BASE_URL;
+    const orgName = import.meta.env.VITE_UIPATH_ORG_NAME;
+    const tenantName = import.meta.env.VITE_UIPATH_TENANT_NAME;
+    const url = `${baseUrl}${orgName}/${tenantName}/maestro_/processes/${PROCESS_DEFINITION_KEY}/instances/${invoice.maestroProcessKey}?folderKey=${invoice.folderId}`;
     window.open(url, '_blank');
   };
   return (

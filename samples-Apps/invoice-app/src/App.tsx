@@ -13,8 +13,8 @@ const authConfig: UiPathSDKConfig = {
   tenantName: import.meta.env.VITE_UIPATH_TENANT_NAME || 'your-tenant',
   // Use proxy in development if enabled, otherwise use direct URL
   baseUrl: (import.meta.env.DEV && useCorsProxy)
-    ? window.location.origin 
-    : (import.meta.env.VITE_UIPATH_BASE_URL || 'https://staging.uipath.com/'),
+    ? window.location.origin
+    : (import.meta.env.VITE_UIPATH_BASE_URL || 'https://cloud.uipath.com/'),
   redirectUri: import.meta.env.VITE_UIPATH_REDIRECT_URI || window.location.origin,
   scope: import.meta.env.VITE_UIPATH_SCOPE || 'offline_access',
 }

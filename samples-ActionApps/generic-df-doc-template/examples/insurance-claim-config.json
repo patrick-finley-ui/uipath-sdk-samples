@@ -1,0 +1,78 @@
+{
+  "entityId": "claim-entity-id-here",
+  "entityFields": {
+    "claimNumber": {
+      "label": "Claim Number",
+      "mapping": "claimNumber"
+    },
+    "claimType": {
+      "label": "Claim Type",
+      "mapping": "claimType"
+    },
+    "claimAmount": {
+      "label": "Claim Amount",
+      "mapping": "claimAmount"
+    },
+    "filedDate": {
+      "label": "Filed Date",
+      "mapping": "filedDate"
+    },
+    "status": {
+      "label": "Status",
+      "mapping": "status"
+    }
+  },
+  "storageBucketId": 12345,
+  "filePath": "claims/",
+  "readOnlyFields": {
+    "claimId": {
+      "label": "Claim ID",
+      "value": "CLM-2024-98765"
+    },
+    "policyNumber": {
+      "label": "Policy Number",
+      "value": "POL-123456789"
+    },
+    "claimantName": {
+      "label": "Claimant Name",
+      "value": "Jane Smith"
+    },
+    "incidentDate": {
+      "label": "Incident Date",
+      "value": "2024-01-15"
+    },
+    "estimatedAmount": {
+      "label": "Estimated Amount",
+      "value": "15000.00"
+    }
+  },
+  "aiAgentHTML": "<p><strong>AI Analysis:</strong> Claim documentation is complete. Incident report verified. Policy coverage confirmed. Medical reports attached. Recommendation: Approve for processing.</p>",
+  "outputFields": {
+    "assessmentScore": {
+      "type": "integer",
+      "required": true
+    },
+    "adjusterNotes": {
+      "type": "textarea",
+      "required": true
+    },
+    "approvedAmount": {
+      "type": "number",
+      "required": false
+    }
+  },
+  "outcomes": {
+    "Approve": {
+      "type": "string",
+      "label": "Approve Claim"
+    },
+    "Deny": {
+      "type": "string",
+      "label": "Deny Claim"
+    },
+    "Investigate": {
+      "type": "string",
+      "label": "Require Investigation"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "entityId": "f5cc0fa5-54dc-f011-8196-00224882fdd3",
+  "entityFields": {
+    "loanType": {
+      "label": "Loan Type",
+      "mapping": "loanType"
+    },
+    "amount": {
+      "label": "Amount",
+      "mapping": "amount"
+    },
+    "processingDate": {
+      "label": "Processing Date",
+      "mapping": "processingDate"
+    },
+    "duration": {
+      "label": "Duration",
+      "mapping": "duration"
+    },
+    "status": {
+      "label": "Status",
+      "mapping": "status"
+    }
+  },
+  "storageBucketId": 12345,
+  "filePath": "",
+  "readOnlyFields": {
+    "applicantName": {
+      "label": "Applicant Name",
+      "value": "John Doe"
+    },
+    "loanAmount": {
+      "label": "Loan Amount",
+      "value": "50000"
+    },
+    "creditScore": {
+      "label": "Credit Score",
+      "value": "750"
+    }
+  },
+  "aiAgentHTML": "<p><strong>AI Analysis:</strong> Applicant shows strong credit history with consistent payment patterns. Income verification completed. Recommendation: Approve with standard terms.</p>",
+  "outputFields": {
+    "riskFactor": {
+      "type": "string",
+      "required": true
+    },
+    "reviewerComments": {
+      "type": "textarea",
+      "required": false
+    }
+  },
+  "outcomes": {
+    "Approve": {
+      "type": "string",
+      "label": "Accept Application"
+    },
+    "Reject": {
+      "type": "string",
+      "label": "Reject Application"
+    }
+  }
+}

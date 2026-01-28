@@ -3,6 +3,12 @@ import { useState } from 'react';
 export const LoginInstructions = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Get environment variables
+  const baseUrl = import.meta.env.VITE_UIPATH_BASE_URL || 'https://cloud.uipath.com/';
+  const orgName = import.meta.env.VITE_UIPATH_ORG_NAME || 'your-organization';
+  const tenantName = import.meta.env.VITE_UIPATH_TENANT_NAME || 'your-tenant';
+  const loginUrl = `${baseUrl}${orgName}/`;
+
   return (
     <div className="mt-6">
       <div className="bg-blue-50 border border-blue-200 rounded-lg shadow-sm overflow-hidden">
@@ -67,12 +73,12 @@ export const LoginInstructions = () => {
                     Log in using Single Sign-On (SSO) to:
                   </p>
                   <a
-                    href="https://staging.uipath.com/uipathlabs/"
+                    href={loginUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 font-medium underline"
                   >
-                    https://staging.uipath.com/uipathlabs/
+                    {loginUrl}
                     <svg
                       className="w-3 h-3 ml-1"
                       fill="none"
@@ -102,7 +108,7 @@ export const LoginInstructions = () => {
                     Verify Folder Access
                   </h4>
                   <p className="text-xs text-gray-700 mb-2">
-                    In the <span className="font-semibold">Playground Tenant</span>, ensure you have access to:
+                    In the <span className="font-semibold">{tenantName} Tenant</span>, ensure you have access to:
                   </p>
                   <div className="bg-gray-50 rounded px-3 py-2 border border-gray-200">
                     <p className="text-xs font-mono text-gray-800">
@@ -124,7 +130,7 @@ export const LoginInstructions = () => {
                     Verify Data Fabric Permissions
                   </h4>
                   <p className="text-xs text-gray-700 mb-2">
-                    In the <span className="font-semibold">Playground Tenant</span>, confirm you have the following permissions:
+                    In the <span className="font-semibold">{tenantName} Tenant</span>, confirm you have the following permissions:
                   </p>
                   <ul className="space-y-1">
                     <li className="flex items-center text-xs text-gray-700">

@@ -1,40 +1,54 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  
-  /* 
-   * CORS PROXY CONFIGURATION
-   * 
-   * To enable CORS proxy for local development:
-   * 1. Uncomment the server.proxy configuration below
-   * 2. Set VITE_USE_CORS_PROXY=true in your .env.development file
-   * 3. Restart your dev server (npm run dev)
-   * 
-   * To disable (default):
-   * 1. Keep this configuration commented out
-   * 2. Set VITE_USE_CORS_PROXY=false in your .env.development file
-   * 3. You may need a CORS browser extension for some API calls
-   */
-  
-  server: {
-    proxy: {
-      // Proxy all UiPath API requests to avoid CORS issues in local development
-      // This catches requests like /uipathlabs/Playground/maestro_/...
-      '/uipathlabs': {
-        target: 'https://staging.uipath.com',
-        changeOrigin: true,
-        secure: true,
-      },
-      // Proxy organization ID paths
-      '/82e69757-09ff-4e6d-83e7-d530f2ac4e7b': {
-        target: 'https://staging.uipath.com',
-        changeOrigin: true,
-        secure: true,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const baseUrl = env.VITE_UIPATH_BASE_URL || 'https://cloud.uipath.com/'
+  const orgName = env.VITE_UIPATH_ORG_NAME || 'uipathlabs'
+
+  // Extract the base URL without trailing slash for proxy target
+  const proxyTarget = baseUrl.replace(/\/$/, '')
+
+  return {
+    plugins: [react()],
+
+    /*
+     * CORS PROXY CONFIGURATION
+     *
+     * To enable CORS proxy for local development:
+     * 1. Uncomment the server.proxy configuration below
+     * 2. Set VITE_USE_CORS_PROXY=true in your .env.development file
+     * 3. Restart your dev server (npm run dev)
+     *
+     * To disable (default):
+     * 1. Keep this configuration commented out
+     * 2. Set VITE_USE_CORS_PROXY=false in your .env.development file
+     * 3. You may need a CORS browser extension for some API calls
+     */
+
+    server: {
+      proxy: {
+        // Proxy all UiPath API requests to avoid CORS issues in local development
+        // This catches requests like /{orgName}/{tenantName}/maestro_/...
+        [`/${orgName}`]: {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: true,
+        },
+        // Proxy organization ID paths
+        '/82e69757-09ff-4e6d-83e7-d530f2ac4e7b': {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: true,
+        },
+        '/a17c9af1-091d-4dd2-9cec-ed787c6601c8': {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: true,
+        },
       },
     },
-  },
+  }
 })
 

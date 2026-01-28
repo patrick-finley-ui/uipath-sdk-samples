@@ -53,7 +53,7 @@
                         <span class="ir-panel-counter" id="ir-check-count">0 checks</span>
                     </div>
                     <div class="ir-check-controls">
-                         <div class="ir-check-legend">
+                        <div class="ir-check-legend">
                             <span class="ir-pill ir-pill--pass">Pass</span>
                             <span class="ir-pill ir-pill--warn">Inconclusive</span>
                             <span class="ir-pill ir-pill--fail">Fail</span>
@@ -1020,7 +1020,8 @@
             decision: null, // "CLEARED" | "REPORT_REQUIRED" | null
             reportType: null, // "DOCX" | "PPTX" | null
             comments: "",
-            validationError: null
+            validationError: null,
+            name: null // Subject name from scriptResponse
         };
 
         // ---- Data Loading ----
@@ -1032,6 +1033,7 @@
                 console.log("[IntelReview] No UiPath input received (raw is null/undefined)");
                 console.log("[IntelReview] Using MOCK_INTEL data");
                 state.rawJson = JSON.stringify(MOCK_INTEL, null, 2);
+                state.name = null; // Reset name when using mock data
                 console.log("[IntelReview] ========== END DATA LOADING ==========");
                 return MOCK_INTEL;
             }
@@ -1110,6 +1112,16 @@
                     console.log("[IntelReview] Successfully loaded intel from UiPath variable");
                     console.log("[IntelReview] Risk level:", intelData.overall_assessment.risk_level);
                     console.log("[IntelReview] Checks count:", intelData.checks.length);
+
+                    // Extract name from scriptResponse format
+                    if (parsed && parsed.name) {
+                        state.name = parsed.name;
+                        console.log("[IntelReview] Extracted name:", parsed.name);
+                    } else if (intelData && intelData.name) {
+                        state.name = intelData.name;
+                        console.log("[IntelReview] Extracted name from intelData:", intelData.name);
+                    }
+
                     console.log("[IntelReview] ========== END DATA LOADING ==========");
                     return intelData;
                 }
@@ -1128,6 +1140,7 @@
             }
 
             state.rawJson = JSON.stringify(MOCK_INTEL, null, 2);
+            state.name = null; // Reset name when using mock data
             console.log("[IntelReview] Using MOCK_INTEL as fallback");
             console.log("[IntelReview] ========== END DATA LOADING ==========");
             return MOCK_INTEL;
@@ -1195,8 +1208,8 @@
             const riskPillEl = document.getElementById("ir-risk-pill");
 
             if (subjectEl) {
-                // Subject name is not present in JSON; friendly placeholder
-                subjectEl.textContent = "Sergei Volkov (Mock Data)";
+                // Use name from scriptResponse if available, otherwise fallback to placeholder
+                subjectEl.textContent = state.name || "Sergei Volkov (Mock Data)";
             }
 
             if (riskPillEl) {
@@ -1641,7 +1654,7 @@
 
             // Try multiple initialization methods for UiPath compatibility
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function () {
                     console.log("[IntelReview] DOMContentLoaded fired");
                     attemptInitialization();
                 });

@@ -1,0 +1,74 @@
+{
+  "entityId": "invoice-entity-id-here",
+  "entityFields": {
+    "invoiceNumber": {
+      "label": "Invoice Number",
+      "mapping": "invoiceNumber"
+    },
+    "vendorName": {
+      "label": "Vendor",
+      "mapping": "vendorName"
+    },
+    "amount": {
+      "label": "Amount",
+      "mapping": "amount"
+    },
+    "dueDate": {
+      "label": "Due Date",
+      "mapping": "dueDate"
+    },
+    "status": {
+      "label": "Status",
+      "mapping": "status"
+    }
+  },
+  "storageBucketId": 12345,
+  "filePath": "invoices/2024/",
+  "readOnlyFields": {
+    "invoiceId": {
+      "label": "Invoice ID",
+      "value": "INV-2024-001234"
+    },
+    "totalAmount": {
+      "label": "Total Amount",
+      "value": "12500.00"
+    },
+    "vendor": {
+      "label": "Vendor",
+      "value": "Acme Corporation"
+    },
+    "purchaseOrder": {
+      "label": "PO Number",
+      "value": "PO-2024-5678"
+    }
+  },
+  "aiAgentHTML": "<p><strong>AI Analysis:</strong> Invoice matches purchase order. All line items verified. Vendor payment terms confirmed. No discrepancies found.</p>",
+  "outputFields": {
+    "approvalStatus": {
+      "type": "string",
+      "required": true
+    },
+    "approverNotes": {
+      "type": "textarea",
+      "required": false
+    },
+    "paymentMethod": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "outcomes": {
+    "Approve": {
+      "type": "string",
+      "label": "Approve Invoice"
+    },
+    "Reject": {
+      "type": "string",
+      "label": "Reject Invoice"
+    },
+    "RequestInfo": {
+      "type": "string",
+      "label": "Request More Information"
+    }
+  }
+}

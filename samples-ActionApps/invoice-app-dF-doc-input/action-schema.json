@@ -1,0 +1,63 @@
+{
+    "inputs": {
+        "type": "object",
+        "properties": {
+            "vendorName": {
+                "type": "string",
+                "required": true
+            },
+            "invoiceAmount": {
+                "required": false,
+                "type": "number"
+            },
+            "invoiceDate": {
+                "required": false,
+                "type": "string"
+            },
+            "dueDate": {
+                "required": false,
+                "type": "string"
+            },
+            "aiAgentHTML": {
+                "required": false,
+                "type": "string"
+            },
+            "loanBucketStorageId": {
+                "required": false,
+                "type": "number"
+            }
+            
+            
+        }
+    },
+    "outputs": {
+        "type": "object",
+        "properties": {
+            "decision": {
+                "type": "string",
+                "required": true
+            },
+            "reviewerComments": {
+                "type": "string"
+            }
+        }
+    },
+    "inOuts": {
+        "type": "object",
+        "properties": {}
+    },
+    "outcomes": {
+        "type": "object",
+        "properties": {
+            "Approve Invoice": {
+                "type": "string"
+            },
+            "Reject Invoice": {
+                "type": "string"
+            },
+            "Request Correction": {
+                "type": "string"
+            }
+        }
+    }
+}

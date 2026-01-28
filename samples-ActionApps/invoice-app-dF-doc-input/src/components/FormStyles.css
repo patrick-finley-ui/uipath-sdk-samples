@@ -1,0 +1,114 @@
+/* Modern UI Enhancements - Dark Theme with UiPath Colors */
+
+/* Accept button with UiPath teal primary */
+.btn-accept {
+  background: oklch(0.78 0.09 205);
+  box-shadow: 0 4px 14px oklch(0.78 0.09 205 / 0.25);
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-accept:hover:not(:disabled) {
+  background: oklch(0.75 0.09 205);
+  box-shadow: 0 6px 20px oklch(0.78 0.09 205 / 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-accept:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Reject button with UiPath orange (used sparingly for warnings) */
+.btn-reject {
+  background: oklch(0.62 0.18 35);
+  box-shadow: 0 4px 14px oklch(0.62 0.18 35 / 0.25);
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-reject:hover:not(:disabled) {
+  background: oklch(0.59 0.18 35);
+  box-shadow: 0 6px 20px oklch(0.62 0.18 35 / 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-reject:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Tab animation */
+.tab-fade-in {
+  animation: tabFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card hover effect - dark theme shadow */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px oklch(0 0 0 / 0.4);
+}
+
+/* Input focus ring - UiPath teal */
+.input-focus:focus {
+  outline: none;
+  border-color: oklch(0.78 0.09 205);
+  box-shadow: 0 0 0 4px oklch(0.78 0.09 205 / 0.1);
+}
+
+.input-focus:hover:not(:focus) {
+  border-color: oklch(0.65 0.02 265);
+}
+
+/* PDF nav buttons - UiPath teal primary */
+.btn-pdf-nav {
+  background: oklch(0.78 0.09 205);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-pdf-nav:hover:not(:disabled) {
+  background: oklch(0.75 0.09 205);
+  box-shadow: 0 4px 12px oklch(0.78 0.09 205 / 0.3);
+  transform: translateY(-1px);
+}
+
+/* Status badge pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.status-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading spinner */
+.spinner {
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "entityId": "employee-entity-id-here",
+  "entityFields": {
+    "employeeId": {
+      "label": "Employee ID",
+      "mapping": "employeeId"
+    },
+    "department": {
+      "label": "Department",
+      "mapping": "department"
+    },
+    "startDate": {
+      "label": "Start Date",
+      "mapping": "startDate"
+    },
+    "position": {
+      "label": "Position",
+      "mapping": "position"
+    },
+    "status": {
+      "label": "Status",
+      "mapping": "status"
+    }
+  },
+  "storageBucketId": 12345,
+  "filePath": "onboarding/",
+  "readOnlyFields": {
+    "candidateName": {
+      "label": "Candidate Name",
+      "value": "Michael Johnson"
+    },
+    "email": {
+      "label": "Email",
+      "value": "michael.johnson@company.com"
+    },
+    "phone": {
+      "label": "Phone",
+      "value": "+1-555-0123"
+    },
+    "offerDate": {
+      "label": "Offer Date",
+      "value": "2024-02-01"
+    }
+  },
+  "aiAgentHTML": "<p><strong>AI Analysis:</strong> All required documents submitted. Background check completed. References verified. Onboarding checklist 95% complete. Ready for final approval.</p>",
+  "outputFields": {
+    "approvalDecision": {
+      "type": "string",
+      "required": true
+    },
+    "hrNotes": {
+      "type": "textarea",
+      "required": false
+    },
+    "startDateConfirmed": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "outcomes": {
+    "Approve": {
+      "type": "string",
+      "label": "Approve Onboarding"
+    },
+    "Reject": {
+      "type": "string",
+      "label": "Reject Application"
+    },
+    "Pending": {
+      "type": "string",
+      "label": "Request Additional Info"
+    }
+  }
+}
