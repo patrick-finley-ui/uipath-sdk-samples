@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://uipath.com/schemas/action-schema.json",
+  "title": "Loan Application Review Action Schema",
+  "description": "Schema for loan application review action",
+  "type": "object",
+  "required": ["inputs", "outputs", "inOuts", "outcomes"],
+  "inputs": {
+    "type": "object",
+    "properties": {
+      "applicantName": {
+        "type": "string",
+        "required": true,
+        "description": "Name of the loan applicant"
+      },
+      "loanAmount": {
+        "type": "number",
+        "required": false,
+        "description": "Amount of the loan"
+      },
+      "creditScore": {
+        "type": "number",
+        "required": false,
+        "description": "Credit score of the applicant"
+      }
+    }
+  },
+  "outputs": {
+    "type": "object",
+    "properties": {
+      "riskFactor": {
+        "type": "integer",
+        "required": false,
+        "description": "Risk factor score for the loan application"
+      },
+      "reviewerComments": {
+        "type": "string",
+        "required": false,
+        "description": "Comments from the reviewer"
+      }
+    }
+  },
+  "inOuts": {
+    "type": "object",
+    "properties": {}
+  },
+  "outcomes": {
+    "type": "object",
+    "properties": {
+      "Approve": {
+        "type": "string",
+        "description": "Approve the loan application"
+      },
+      "Reject": {
+        "type": "string",
+        "description": "Reject the loan application"
+      }
+    }
+  }
+}
