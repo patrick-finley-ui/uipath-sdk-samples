@@ -1,3 +1,9 @@
+# Personal Injury Claims Case Management Demo
+
+URL for live demo: https://staging.uipath.com/82e69757-09ff-4e6d-83e7-d530f2ac4e7b/apps_/default/run/production/bd829329-42ff-40aa-96dc-95a78168275a/e072bd13-1c37-4125-a891-fde9bf3d7311/ID146c0a8384934138a272a839a9e48087/public
+
+You'll need to authenticate to uipathlabs and have access to the folder to see the demo.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
