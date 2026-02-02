@@ -29,7 +29,7 @@ export const mapEntityToInvestigation = (entity: TargetInvestigationEntity): Inv
     subjectId: entity.subjectId || 'unknown',
     subjectName,
     subjectNationality: entity.subjectNationality || 'Unknown',
-    subjectDob: entity.subjectDob,
+    subjectDob: entity.idDOB, // Map from entity field 'idDOB' to Investigation 'subjectDob'
     overallRisk: entity.risk as RiskLevel,
 
     caseStatus: entity.caseStatus as CaseStatus,

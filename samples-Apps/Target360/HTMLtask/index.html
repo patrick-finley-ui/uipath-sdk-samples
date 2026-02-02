@@ -263,6 +263,24 @@
         color: #7f1d1d;
     }
 
+    .ir-badge--risk-low {
+        background: rgba(34, 197, 94, 0.5);
+        border-color: rgba(34, 197, 94, 0.8);
+        color: #14532d;
+    }
+
+    .ir-badge--risk-medium {
+        background: rgba(245, 158, 11, 0.5);
+        border-color: rgba(245, 158, 11, 0.8);
+        color: #78350f;
+    }
+
+    .ir-badge--risk-high {
+        background: rgba(220, 38, 38, 0.5);
+        border-color: rgba(220, 38, 38, 0.8);
+        color: #7f1d1d;
+    }
+
     .ir-header-subrow {
         margin-top: 10px;
         display: flex;
@@ -380,6 +398,24 @@
     }
 
     .ir-pill--risk {
+        background: rgba(220, 38, 38, 0.5);
+        border-color: rgba(220, 38, 38, 0.8);
+        color: #7f1d1d;
+    }
+
+    .ir-pill--risk-low {
+        background: rgba(34, 197, 94, 0.5);
+        border-color: rgba(34, 197, 94, 0.8);
+        color: #14532d;
+    }
+
+    .ir-pill--risk-medium {
+        background: rgba(245, 158, 11, 0.5);
+        border-color: rgba(245, 158, 11, 0.8);
+        color: #78350f;
+    }
+
+    .ir-pill--risk-high {
         background: rgba(220, 38, 38, 0.5);
         border-color: rgba(220, 38, 38, 0.8);
         color: #7f1d1d;
@@ -1148,18 +1184,18 @@
 
         // ---- Rendering Helpers ----
         function riskToClasses(riskLevel) {
-            if (!riskLevel) return { text: "UNKNOWN", pillText: "UNKNOWN" };
+            if (!riskLevel) return { text: "UNKNOWN", pillText: "UNKNOWN", badgeClass: "ir-badge--risk", pillClass: "ir-pill--risk" };
             const normalized = String(riskLevel).toLowerCase();
             if (normalized === "high") {
-                return { text: "High Risk", pillText: "HIGH" };
+                return { text: "High Risk", pillText: "HIGH", badgeClass: "ir-badge--risk-high", pillClass: "ir-pill--risk-high" };
             }
             if (normalized === "medium") {
-                return { text: "Medium Risk", pillText: "MEDIUM" };
+                return { text: "Medium Risk", pillText: "MEDIUM", badgeClass: "ir-badge--risk-medium", pillClass: "ir-pill--risk-medium" };
             }
             if (normalized === "low") {
-                return { text: "Low Risk", pillText: "LOW" };
+                return { text: "Low Risk", pillText: "LOW", badgeClass: "ir-badge--risk-low", pillClass: "ir-pill--risk-low" };
             }
-            return { text: String(riskLevel), pillText: String(riskLevel).toUpperCase() };
+            return { text: String(riskLevel), pillText: String(riskLevel).toUpperCase(), badgeClass: "ir-badge--risk", pillClass: "ir-pill--risk" };
         }
 
         function resultToClass(result) {
@@ -1217,6 +1253,8 @@
                     intel.overall_assessment && intel.overall_assessment.risk_level
                 );
                 riskPillEl.textContent = riskMeta.text;
+                // Update class to match risk level
+                riskPillEl.className = "ir-badge " + riskMeta.badgeClass;
             }
         }
 
@@ -1229,6 +1267,8 @@
                     intel.overall_assessment && intel.overall_assessment.risk_level
                 );
                 riskLabelEl.textContent = riskMeta.pillText;
+                // Update class to match risk level
+                riskLabelEl.className = "ir-pill " + riskMeta.pillClass;
             }
 
             if (summaryTextEl) {

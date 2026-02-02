@@ -431,8 +431,14 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
       setSubjectName('');
       setAnalystEmail('');
 
-      // Refresh investigations list
+      // Refresh investigations list immediately
       await fetchInvestigations(true);
+
+      // Auto-refresh again after 7 seconds to pick up the new investigation entity
+      setTimeout(() => {
+        console.log('🔄 Auto-refreshing investigations 7 seconds after submission...');
+        fetchInvestigations(true);
+      }, 7000);
 
     } catch (err) {
       console.group('❌ Error Starting Investigation Process');
@@ -676,6 +682,8 @@ export const InvestigationDashboard = ({ sdk }: InvestigationDashboardProps) => 
               demoResetTime={demoResetTime}
               onResetTimeToNow={handleResetTimeToNow}
               onClearResetTime={handleClearResetTime}
+              sdk={sdk}
+              onRefresh={handleRefresh}
             />
           ) : (
             <>

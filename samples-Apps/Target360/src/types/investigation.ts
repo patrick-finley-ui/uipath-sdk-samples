@@ -50,7 +50,7 @@ export interface TargetInvestigationEntity {
   subjectId?: string;
   subjectNationality?: string;
   subjectName?: string;
-  subjectDob?: string;
+  idDOB?: string; // Entity field name for date of birth
   caseStatus?: string;
   numChecksFlagged?: number;
   aiSummary?: string;
