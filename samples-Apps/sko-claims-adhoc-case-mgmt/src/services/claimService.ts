@@ -508,19 +508,17 @@ export class ClaimService {
     }
   }
 
+  /** Claims entity ID used to resolve CaseId to the entity record GUID (PICaseId). */
+  private static readonly CLAIMS_ENTITY_ID = 'ad76bb21-97fb-f011-832f-000d3abf6e1a';
+  /** Entity ID for the task/event records created on document upload. */
+  private static readonly TASK_ENTITY_ID = 'daf05647-97fb-f011-832f-000d3abf6e1a';
+
   /**
-   * Sends webhook after document upload.
-   * Finds entity record by CaseId and sends webhook with entity record ID.
+   * Submits document upload by creating a new entity record via the SDK.
+   * Resolves the case's entity record GUID (PICaseId) from the claims entity, then inserts
+   * a record into the task entity with PICaseId, RunSpecificTask, and Complete.
    */
   async submitDocumentUpload(caseId: string, notes: string, files: File[]): Promise<void> {
-    const ENTITY_ID = 'ad76bb21-97fb-f011-832f-000d3abf6e1a';
-    // Webhook URL - use window.location.origin in development (with proxy), direct URL in production
-    const WEBHOOK_PATH = '/uipathlabs/Playground/orchestrator_/t/12b29e74-5ca3-40ee-84d5-849dbc279bba/create-event';
-    const WEBHOOK_URL = import.meta.env.DEV 
-      ? `${window.location.origin}${WEBHOOK_PATH}`
-      : `https://staging.uipath.com${WEBHOOK_PATH}`;
-    const BEARER_TOKEN = 'rt_857C11F7016B4B7823F5C9C1B1C3C540522092F3AC82CC7564D558C81236970C-1';
-
     if (isMockMode() || !this.sdk) {
       console.log('Mock mode: Simulating document upload submission');
       console.log('CaseId:', caseId);
@@ -530,19 +528,15 @@ export class ClaimService {
     }
 
     try {
-      // Step 1: Get the entity record by CaseId only (no DemoStage filter)
-      const entity = await this.sdk.entities.getById(ENTITY_ID);
-      console.log('Found entity with ID:', (entity as any).id || (entity as any).Id || ENTITY_ID);
-      
-      // Get all records from the entity
+      // Resolve CaseId to the claims entity record GUID (same value previously sent as PICaseId in webhook)
+      const entity = await this.sdk.entities.getById(ClaimService.CLAIMS_ENTITY_ID);
       const response = await entity.getRecords();
       const records = (response as any).items || response;
-      
+
       if (!Array.isArray(records)) {
-        throw new Error(`No records found for entity ${ENTITY_ID}`);
+        throw new Error(`No records found for entity ${ClaimService.CLAIMS_ENTITY_ID}`);
       }
 
-      // Filter records in JavaScript by CaseId only
       const matchingRecords = records.filter((record: any) => {
         const recordCaseId = record.CaseId || record.caseId;
         return recordCaseId === caseId;
@@ -553,32 +547,19 @@ export class ClaimService {
       }
 
       const entityRecord = matchingRecords[0];
-      const recordId = entityRecord.Id || entityRecord.id;
-      console.log('Found entity record with ID:', recordId);
-      
-      if (!recordId) {
+      const picaseId = entityRecord.Id || entityRecord.id;
+      if (!picaseId) {
         throw new Error('Entity record does not have an Id field');
       }
 
-      // Step 2: Send webhook with entity record ID
-      console.log('Sending webhook with entity record ID:', recordId);
-      const webhookResponse = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${BEARER_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          PICaseId: recordId,
-        }),
+      // Create new record in task entity via SDK (replaces webhook)
+      await this.sdk.entities.insertById(ClaimService.TASK_ENTITY_ID, {
+        PICaseId: picaseId,
+        RunSpecificTask: 'Threshold Injury Assessment',
+        Complete: false,
       });
 
-      if (!webhookResponse.ok) {
-        const errorText = await webhookResponse.text();
-        throw new Error(`Webhook failed: ${webhookResponse.status} - ${errorText}`);
-      }
-
-      console.log('Webhook sent successfully');
+      console.log('Document upload submitted: new record created for PICaseId', picaseId);
     } catch (error: any) {
       console.error('Error submitting document upload:', error);
       throw error;
@@ -586,38 +567,22 @@ export class ClaimService {
   }
 
   /**
-   * Demo Setup: Sends GET request to demo-setup webhook (response includes recordId),
-   * waits 30s, finds the most recently created case instance (within last minute),
-   * then updates that entity record with the CaseId. Retries up to 2 times if case not found.
+   * Demo Setup: Creates a new entity record via SDK insertById, waits 30s, finds the most
+   * recently created case instance (within last minute), then updates that entity record
+   * with the CaseId. Retries up to 2 times if case not found.
    */
   async runDemoSetup(): Promise<{ caseId: string }> {
     if (isMockMode() || !this.sdk) {
       throw new Error('Demo Setup is not available in mock mode or when not authenticated.');
     }
 
-    // Use proxy in dev to avoid CORS (vite proxy: /uipathlabs -> staging.uipath.com)
-    const DEMO_SETUP_PATH = '/uipathlabs/Playground/orchestrator_/t/12b29e74-5ca3-40ee-84d5-849dbc279bba/demo-setup';
-    const DEMO_SETUP_WEBHOOK_URL = import.meta.env.DEV
-      ? `${window.location.origin}${DEMO_SETUP_PATH}`
-      : `https://staging.uipath.com${DEMO_SETUP_PATH}`;
-
-    // 1. Send GET request to trigger demo setup (same Bearer token as other webhook)
-    const DEMO_SETUP_BEARER_TOKEN = 'rt_857C11F7016B4B7823F5C9C1B1C3C540522092F3AC82CC7564D558C81236970C-1';
-    const webhookResponse = await fetch(DEMO_SETUP_WEBHOOK_URL, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${DEMO_SETUP_BEARER_TOKEN}`,
-      },
-    });
-    if (!webhookResponse.ok) {
-      throw new Error(`Demo Setup webhook failed: ${webhookResponse.status} ${webhookResponse.statusText}`);
-    }
-    const payload = await webhookResponse.json() as { recordId?: string };
-    const recordId = payload?.recordId;
+    // 1. Create entity record via SDK (no field data required)
+    const insertedRecord = await this.sdk.entities.insertById(DEMO_ENTITY_ID, {});
+    const recordId = (insertedRecord as any).Id ?? (insertedRecord as any).id;
     if (!recordId || typeof recordId !== 'string') {
-      throw new Error('Demo Setup: Webhook response did not contain a valid recordId.');
+      throw new Error('Demo Setup: insertById did not return a valid record Id.');
     }
-    console.log('Demo Setup: Webhook triggered successfully, recordId', recordId);
+    console.log('Demo Setup: Entity record created, recordId', recordId);
 
     // 2. Wait 30 seconds before first search
     const SEARCH_DELAY_MS = 30000;
