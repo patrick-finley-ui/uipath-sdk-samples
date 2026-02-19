@@ -8,14 +8,13 @@ type SortDirection = 'asc' | 'desc';
 interface InvoiceGridProps {
   invoices: InvoiceRecord[];
   onInvoiceSelect?: (invoice: InvoiceRecord) => void;
-  selectedInvoiceId?: string;
   onRefresh?: () => void;
   isRefreshing?: boolean;
   statusFilter?: string;
   onStatusFilterChange?: (status: string) => void;
 }
 
-export const InvoiceGrid = ({ invoices, onInvoiceSelect, selectedInvoiceId, onRefresh, isRefreshing, statusFilter, onStatusFilterChange }: InvoiceGridProps) => {
+export const InvoiceGrid = ({ invoices, onInvoiceSelect, onRefresh, isRefreshing, statusFilter, onStatusFilterChange }: InvoiceGridProps) => {
   const [sortField, setSortField] = useState<SortField>('updateTime');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [filterStatus, setFilterStatus] = useState<string>(statusFilter || 'All');
@@ -92,8 +91,11 @@ export const InvoiceGrid = ({ invoices, onInvoiceSelect, selectedInvoiceId, onRe
         aVal = a.invoiceTotal || 0;
         bVal = b.invoiceTotal || 0;
       } else if (sortField === 'acceptanceDate' || sortField === 'updateTime') {
-        aVal = a[sortField] ? new Date(a[sortField]!).getTime() : 0;
-        bVal = b[sortField] ? new Date(b[sortField]!).getTime() : 0;
+        // Handle both camelCase (updateTime) and PascalCase (UpdateTime) field names
+        const aTimeField = sortField === 'updateTime' ? (a.updateTime || (a as any).UpdateTime) : a[sortField];
+        const bTimeField = sortField === 'updateTime' ? (b.updateTime || (b as any).UpdateTime) : b[sortField];
+        aVal = aTimeField ? new Date(aTimeField).getTime() : 0;
+        bVal = bTimeField ? new Date(bTimeField).getTime() : 0;
       } else {
         aVal = aVal?.toString().toLowerCase() || '';
         bVal = bVal?.toString().toLowerCase() || '';
@@ -332,11 +334,7 @@ export const InvoiceGrid = ({ invoices, onInvoiceSelect, selectedInvoiceId, onRe
                   <tr
                     key={invoice.id}
                     onClick={() => onInvoiceSelect?.(invoice)}
-                    className={`transition-colors cursor-pointer ${
-                      selectedInvoiceId === invoice.id
-                        ? 'bg-orange-50 border-l-4 border-l-uipath-orange'
-                        : 'hover:bg-gray-50'
-                    }`}
+                    className="transition-colors cursor-pointer hover:bg-gray-50"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {invoice.invoiceId}
@@ -377,7 +375,7 @@ export const InvoiceGrid = ({ invoices, onInvoiceSelect, selectedInvoiceId, onRe
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(invoice.updateTime)}
+                      {formatDate(invoice.updateTime || (invoice as any).UpdateTime)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {invoice.maestroProcessKey && invoice.folderId ? (

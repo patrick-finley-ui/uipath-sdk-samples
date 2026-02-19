@@ -60,7 +60,21 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
         $orderby: 'UpdateTime desc',
       });
 
-      setInvoices(records.items as InvoiceRecord[]);
+      // Map records to ensure UpdateTime field is correctly mapped to updateTime
+      const mappedInvoices = records.items.map((item: any) => ({
+        ...item,
+        updateTime: item.updateTime || item.UpdateTime,
+        userEmail: item.userEmail || item.UserEmail,// Handle both camelCase and PascalCase
+        contractNumber: item.contractNumber || item.ContractNumber,
+        vendorName: item.vendorName || item.VendorName,
+        shipmentNumber: item.shipmentNumber || item.ShipmentNumber,
+        acceptanceDate: item.acceptanceDate || item.AcceptanceDate,
+        invoiceTotal: item.invoiceTotal || item.InvoiceTotal,
+        status: item.status || item.Status,
+        recordOwner: item.recordOwner || item.RecordOwner,
+      })) as InvoiceRecord[];
+
+      setInvoices(mappedInvoices);
     } catch (err) {
       console.error('Error fetching invoices:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch invoices');
@@ -90,11 +104,18 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
     try {
       setProcessDetails({ loading: true });
 
-      const [bpmnXml, executionHistory, variables] = await Promise.all([
+      // COMMENTED OUT: getExecutionHistory API is currently broken
+      // const [bpmnXml, executionHistory, variables] = await Promise.all([
+      //   sdk.maestro.processes.instances.getBpmn(invoice.maestroProcessKey, invoice.folderId),
+      //   sdk.maestro.processes.instances.getExecutionHistory(invoice.maestroProcessKey),
+      //   sdk.maestro.processes.instances.getVariables(invoice.maestroProcessKey, invoice.folderId),
+      // ]);
+
+      const [bpmnXml, variables] = await Promise.all([
         sdk.maestro.processes.instances.getBpmn(invoice.maestroProcessKey, invoice.folderId),
-        sdk.maestro.processes.instances.getExecutionHistory(invoice.maestroProcessKey),
         sdk.maestro.processes.instances.getVariables(invoice.maestroProcessKey, invoice.folderId),
       ]);
+      // executionHistory is not available - API is broken
 
       // Group variables by source
       const groupedVariables: Record<string, Array<{ name: string; value: string; type: string }>> = {};
@@ -127,27 +148,34 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
         });
       }
 
+      // COMMENTED OUT: Task link extraction from execution history (API is broken)
       // Extract task link and activity type from execution history if available
-      let taskLink: string | undefined;
-      let activityType: string | undefined;
-      let activityName: string | undefined;
-      let taskCompleted: boolean = false;
-      if (executionHistory && executionHistory.length > 0) {
-        // Find the first activity with an actionCenterTaskLink in attributes
-        for (const activity of executionHistory) {
-          const attributes = (activity as any).attributes;
-          if (attributes && attributes.actionCenterTaskLink) {
-            taskLink = attributes.actionCenterTaskLink;
-            activityType = 'user task';
-            activityName = (activity as any).name;
-            taskCompleted = attributes.status === 'Completed';
-            break;
-          }
-        }
-      }
+      // let taskLink: string | undefined;
+      // let activityType: string | undefined;
+      // let activityName: string | undefined;
+      // let taskCompleted: boolean = false;
+      // if (executionHistory && executionHistory.length > 0) {
+      //   // Find the first activity with an actionCenterTaskLink in attributes
+      //   for (const activity of executionHistory) {
+      //     const attributes = (activity as any).attributes;
+      //     if (attributes && attributes.actionCenterTaskLink) {
+      //       taskLink = attributes.actionCenterTaskLink;
+      //       activityType = 'user task';
+      //       activityName = (activity as any).name;
+      //       taskCompleted = attributes.status === 'Completed';
+      //       break;
+      //     }
+      //   }
+      // }
+      
+      // Set to undefined since execution history is not available
+      const taskLink: string | undefined = undefined;
+      const activityType: string | undefined = undefined;
+      const activityName: string | undefined = undefined;
+      const taskCompleted: boolean = false;
 
       setProcessDetails({
-        executionHistory: executionHistory as ProcessInstanceExecutionHistoryResponse[],
+        executionHistory: undefined, // API is broken - commented out
         variables: groupedVariables,
         scriptResponse,
         bpmnXml: bpmnXml as string,
@@ -224,7 +252,7 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
         jobPriority: JobPriority.Normal,
         inputArguments: JSON.stringify({
           InvoiceFilePath: invoiceFilePath,
-          SendToEmail: sendToEmail,
+          sendToEmail: sendToEmail,
         }),
         requiresUserInteraction: false,
       };
@@ -539,7 +567,6 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
             <InvoiceGrid
               invoices={invoices}
               onInvoiceSelect={handleInvoiceSelect}
-              selectedInvoiceId={undefined}
               onRefresh={handleRefresh}
               isRefreshing={refreshing}
               statusFilter={statusFilter}
