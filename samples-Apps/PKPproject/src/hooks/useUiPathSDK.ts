@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { UiPath } from '@uipath/uipath-typescript';
 import { uiPathConfig, USE_TEST_MODE } from '@/config/uipath.config';
 
@@ -57,3 +57,5 @@ export const useUiPathSDK = () => {
 
   return { sdk, isInitialized, isAuthenticated, isLoading, error };
 };
+
+

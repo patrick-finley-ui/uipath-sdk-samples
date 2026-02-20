@@ -1,7 +1,7 @@
-﻿import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import { UiPath, UiPathError } from '@uipath/uipath-typescript';
-import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
+import { UiPath, UiPathError } from '@uipath/uipath-typescript/core';
+import type { UiPathSDKConfig } from '@uipath/uipath-typescript/core';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -59,13 +59,15 @@ export const AuthProvider: React.FC<{ children: ReactNode; config: UiPathSDKConf
   };
 
   const logout = () => {
+    setIsAuthenticated(false);
+    setError(null);
+
     sessionStorage.removeItem(`uipath_sdk_user_token-${config.clientId}`);
     sessionStorage.removeItem('uipath_sdk_oauth_context');
     sessionStorage.removeItem('uipath_sdk_code_verifier');
 
-    setIsAuthenticated(false);
-    setError(null);
-    setSdk(new UiPath(config));
+    const freshSdk = new UiPath(config);
+    setSdk(freshSdk);
   };
 
   return (
@@ -91,4 +93,3 @@ export const useAuth = () => {
   }
   return context;
 };
-

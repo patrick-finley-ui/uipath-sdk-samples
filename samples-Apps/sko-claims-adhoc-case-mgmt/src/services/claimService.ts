@@ -1,4 +1,4 @@
-import type { UiPath } from '@uipath/uipath-typescript';
+﻿import type { UiPath } from '@uipath/uipath-typescript';
 import type { Claim, Task, ClaimMetadata } from '../types/claim';
 import { isMockMode, getCaseId, getFolderId } from '../utils/config';
 
@@ -627,3 +627,5 @@ export class ClaimService {
     throw new Error('Demo Setup: Case instance was not found after 3 attempts. Ensure the case was started within the last minute.');
   }
 }
+
+

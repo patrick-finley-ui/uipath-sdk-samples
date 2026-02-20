@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { ENTITY_CONFIG } from '../config/mockData.config';
 import type { UiPath } from '@uipath/uipath-typescript';
 
@@ -29,7 +29,7 @@ export const SettingsPage = ({ demoResetTime, onResetTimeToNow, onClearResetTime
   };
 
   const deleteOldestInvestigations = async () => {
-    if (!window.confirm('⚠️ WARNING: This will DELETE the 20 oldest investigations (by updateTime). This action cannot be undone. Are you sure?')) {
+    if (!window.confirm('âš ï¸ WARNING: This will DELETE the 20 oldest investigations (by updateTime). This action cannot be undone. Are you sure?')) {
       return;
     }
 
@@ -43,7 +43,7 @@ export const SettingsPage = ({ demoResetTime, onResetTimeToNow, onClearResetTime
     setDeleteResult(null);
 
     try {
-      console.group('🗑️ Deleting oldest 20 investigations');
+      console.group('ðŸ—‘ï¸ Deleting oldest 20 investigations');
 
       // Fetch records WITHOUT sorting to get the first 20 (oldest by updateTime)
       const records = await sdk.entities.getRecordsById(ENTITY_CONFIG.entityId, {
@@ -75,7 +75,7 @@ export const SettingsPage = ({ demoResetTime, onResetTimeToNow, onClearResetTime
       const resultMessage = `Successfully deleted ${recordIds.length} investigations.`;
       setDeleteResult(resultMessage);
 
-      console.log('✅ Deletion summary:', {
+      console.log('âœ… Deletion summary:', {
         attempted: recordIds.length,
         deleted: recordIds.length,
         response: deleteResponse,
@@ -89,7 +89,7 @@ export const SettingsPage = ({ demoResetTime, onResetTimeToNow, onClearResetTime
       }
 
     } catch (err: any) {
-      console.error('❌ Error during deletion process:', err);
+      console.error('âŒ Error during deletion process:', err);
       const errorMessage = err?.message || 'Failed to delete investigations';
       setDeleteError(errorMessage);
     } finally {
@@ -193,7 +193,7 @@ export const SettingsPage = ({ demoResetTime, onResetTimeToNow, onClearResetTime
               <div>
                 <h2 className="text-lg font-semibold text-white">Delete Oldest Investigations</h2>
                 <p className="text-sm text-gray-400 mt-1">
-                  ⚠️ DANGER: Deletes the 20 oldest investigations (by updateTime)
+                  âš ï¸ DANGER: Deletes the 20 oldest investigations (by updateTime)
                 </p>
               </div>
             </div>
@@ -274,3 +274,5 @@ export const SettingsPage = ({ demoResetTime, onResetTimeToNow, onClearResetTime
     </div>
   );
 };
+
+

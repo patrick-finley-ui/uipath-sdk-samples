@@ -1,4 +1,4 @@
-import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
+﻿import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
 
 export const getAuthConfig = (): UiPathSDKConfig => {
   // Determine if we should use CORS proxy (set VITE_USE_CORS_PROXY=true to enable)
@@ -13,8 +13,8 @@ export const getAuthConfig = (): UiPathSDKConfig => {
   }
 
   // Default scopes for tasks and folders
-  const defaultScopes = 'offline_access OR.Tasks OR.Tasks.Read OR.Tasks.Write OR.Folders OR.Folders.Read PIMS';
-  const scopes = import.meta.env.VITE_UIPATH_SCOPE || defaultScopes;
+  const defaultScopes = 'OR.Tasks OR.Tasks.Read OR.Tasks.Write OR.Folders OR.Folders.Read PIMS';
+  const scopes = import.meta.env.VITE_UIPATH_SCOPES || import.meta.env.VITE_UIPATH_SCOPE || defaultScopes;
   
   // Redirect URI must match EXACTLY what's configured in UiPath External App
   let redirectUri: string;
@@ -32,7 +32,7 @@ export const getAuthConfig = (): UiPathSDKConfig => {
   
   // Log configuration for debugging
   if (import.meta.env.DEV) {
-    console.log('🔧 Auth Configuration:', {
+    console.log('ðŸ”§ Auth Configuration:', {
       mode: import.meta.env.DEV ? 'DEVELOPMENT' : 'PRODUCTION',
       baseUrl,
       redirectUri,
@@ -42,7 +42,7 @@ export const getAuthConfig = (): UiPathSDKConfig => {
       scopes: scopes.substring(0, 50) + '...',
     });
     
-    console.warn('⚠️  CRITICAL: Redirect URI Configuration');
+    console.warn('âš ï¸  CRITICAL: Redirect URI Configuration');
     console.warn('   Current redirect URI:', redirectUri);
     console.warn('   This EXACT URL must be registered in your UiPath External App!');
   }
@@ -108,3 +108,6 @@ export const getBasename = (): string => {
   
   return '/';
 };
+
+
+

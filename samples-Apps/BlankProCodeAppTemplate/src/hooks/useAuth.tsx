@@ -1,10 +1,8 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+﻿import React, { useState, useEffect, createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import { 
-  UiPath,
-  UiPathError
-} from '@uipath/uipath-typescript';
+import { UiPath, UiPathError } from '@uipath/uipath-typescript';
 import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
+
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -26,13 +24,11 @@ export const AuthProvider: React.FC<{ children: ReactNode; config: UiPathSDKConf
     const initializeAuth = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
-        // Handle OAuth callback if present
         if (sdk.isInOAuthCallback()) {
           await sdk.completeOAuth();
         }
-        // Check authentication status
         setIsAuthenticated(sdk.isAuthenticated());
       } catch (err) {
         console.error('Authentication initialization failed:', err);
@@ -42,14 +38,14 @@ export const AuthProvider: React.FC<{ children: ReactNode; config: UiPathSDKConf
         setIsLoading(false);
       }
     };
-    
-    initializeAuth();
+
+    void initializeAuth();
   }, [sdk]);
 
   const login = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       await sdk.initialize();
       setIsAuthenticated(sdk.isAuthenticated());
@@ -63,11 +59,13 @@ export const AuthProvider: React.FC<{ children: ReactNode; config: UiPathSDKConf
   };
 
   const logout = () => {
+    sessionStorage.removeItem(`uipath_sdk_user_token-${config.clientId}`);
+    sessionStorage.removeItem('uipath_sdk_oauth_context');
+    sessionStorage.removeItem('uipath_sdk_code_verifier');
+
     setIsAuthenticated(false);
     setError(null);
-    // Create new SDK instance for next login
-    const sdk = new UiPath(config);
-    setSdk(sdk);
+    setSdk(new UiPath(config));
   };
 
   return (
@@ -93,3 +91,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
