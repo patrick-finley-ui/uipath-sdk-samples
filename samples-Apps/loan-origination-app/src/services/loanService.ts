@@ -1,4 +1,4 @@
-import type { UiPath } from '@uipath/uipath-typescript';
+﻿import type { UiPath } from '@uipath/uipath-typescript';
 import type { LoanApplication, Task, LoanMetadata } from '../types/loan';
 import { isMockMode, LO_LOAN_DETAILS_ENTITY_ID } from '../utils/config';
 import { mockLoanApplications, mockTasks, mockBpmnXml } from './mockData';
@@ -551,10 +551,10 @@ export class LoanService {
     const normalizedStatus = (status || '').toLowerCase();
     
     // Map process instance statuses to loan application statuses
-    // Running/InProgress → Under Review
-    // Completed/Successful → Approved
-    // Faulted/Failed → Escalated
-    // Cancelled → Cancelled
+    // Running/InProgress â†’ Under Review
+    // Completed/Successful â†’ Approved
+    // Faulted/Failed â†’ Escalated
+    // Cancelled â†’ Cancelled
     if (normalizedStatus === 'running' || normalizedStatus === 'in progress' || normalizedStatus === 'inprogress') {
       return 'Under Review';
     }
@@ -639,4 +639,6 @@ export class LoanService {
   }
 
 }
+
+
 

@@ -1,4 +1,4 @@
-import { AuthProvider } from './hooks/useAuth'
+﻿import { AuthProvider } from './hooks/useAuth'
 import { useAuth } from './hooks/useAuth'
 import { LoginScreen } from './components/LoginScreen'
 import { Dashboard } from './components/Dashboard'
@@ -16,13 +16,13 @@ const authConfig: UiPathSDKConfig = {
     ? window.location.origin
     : (import.meta.env.VITE_UIPATH_BASE_URL || 'https://cloud.uipath.com/'),
   redirectUri: import.meta.env.VITE_UIPATH_REDIRECT_URI || window.location.origin,
-  scope: import.meta.env.VITE_UIPATH_SCOPE || 'offline_access',
+  scope: import.meta.env.VITE_UIPATH_SCOPES || import.meta.env.VITE_UIPATH_SCOPE || 'DataFabric.Schema.Read',
 }
 
 // Log configuration for debugging
-console.log('🔧 Auth Config:', {
+console.log('ðŸ”§ Auth Config:', {
   mode: import.meta.env.DEV ? 'DEVELOPMENT' : 'PRODUCTION',
-  corsProxy: useCorsProxy ? 'ENABLED ✅' : 'DISABLED ❌',
+  corsProxy: useCorsProxy ? 'ENABLED âœ…' : 'DISABLED âŒ',
   baseUrl: authConfig.baseUrl,
   redirectUri: authConfig.redirectUri,
 })
@@ -76,3 +76,6 @@ function App() {
 }
 
 export default App
+
+
+

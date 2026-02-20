@@ -1,9 +1,6 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+﻿import React, { useState, useEffect, createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import {
-  UiPath,
-  UiPathError
-} from '@uipath/uipath-typescript';
+import { UiPath, UiPathError } from '@uipath/uipath-typescript';
 import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
 
 interface AuthContextType {
@@ -21,14 +18,7 @@ export const AuthProvider: React.FC<{ children: ReactNode; config: UiPathSDKConf
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sdk, setSdk] = useState<UiPath>(() => {
-    const newSdk = new UiPath(config);
-    // Expose SDK to window for console testing
-    (window as any).sdk = newSdk;
-    console.log('🔧 UiPath SDK available in console as `sdk`');
-    console.log('Try: sdk.processes, sdk.maestro, sdk.entities, etc.');
-    return newSdk;
-  });
+  const [sdk, setSdk] = useState<UiPath>(() => new UiPath(config));
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -36,11 +26,9 @@ export const AuthProvider: React.FC<{ children: ReactNode; config: UiPathSDKConf
       setError(null);
 
       try {
-        // Handle OAuth callback if present
         if (sdk.isInOAuthCallback()) {
           await sdk.completeOAuth();
         }
-        // Check authentication status
         setIsAuthenticated(sdk.isAuthenticated());
       } catch (err) {
         console.error('Authentication initialization failed:', err);
@@ -51,7 +39,7 @@ export const AuthProvider: React.FC<{ children: ReactNode; config: UiPathSDKConf
       }
     };
 
-    initializeAuth();
+    void initializeAuth();
   }, [sdk]);
 
   const login = async () => {
@@ -71,13 +59,13 @@ export const AuthProvider: React.FC<{ children: ReactNode; config: UiPathSDKConf
   };
 
   const logout = () => {
+    sessionStorage.removeItem(`uipath_sdk_user_token-${config.clientId}`);
+    sessionStorage.removeItem('uipath_sdk_oauth_context');
+    sessionStorage.removeItem('uipath_sdk_code_verifier');
+
     setIsAuthenticated(false);
     setError(null);
-    // Create new SDK instance for next login
-    const newSdk = new UiPath(config);
-    // Keep SDK exposed to window for console testing
-    (window as any).sdk = newSdk;
-    setSdk(newSdk);
+    setSdk(new UiPath(config));
   };
 
   return (
@@ -103,3 +91,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

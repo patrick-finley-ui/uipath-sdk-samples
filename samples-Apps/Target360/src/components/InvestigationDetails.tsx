@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { Investigation, AgentOutput, CheckOutcome } from '../types/investigation';
 import type { UiPath } from '@uipath/uipath-typescript';
@@ -454,7 +454,7 @@ export const InvestigationDetails = ({
                   <ul className="space-y-2">
                     {riskContent.keyDrivers.map((driver, index) => (
                       <li key={index} className="flex items-start gap-3">
-                        <span className="text-red-400 mt-1">•</span>
+                        <span className="text-red-400 mt-1">â€¢</span>
                         <span className="text-gray-300 text-sm">{driver}</span>
                       </li>
                     ))}
@@ -577,3 +577,5 @@ export const InvestigationDetails = ({
     document.body
   );
 };
+
+

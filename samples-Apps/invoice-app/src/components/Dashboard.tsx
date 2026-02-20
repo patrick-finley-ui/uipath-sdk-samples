@@ -453,7 +453,7 @@ export const Dashboard = ({ sdk }: DashboardProps) => {
       color: 'bg-green-500',
       textColor: 'text-green-600',
       bgColor: 'bg-white',
-      description: 'Approved invoices',
+      description: 'Approved Invoices',
     },
     {
       title: 'Paid',

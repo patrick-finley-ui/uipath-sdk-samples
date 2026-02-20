@@ -1,4 +1,4 @@
-import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
+﻿import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
 
 export const getAuthConfig = (): UiPathSDKConfig => {
   // Determine if we should use CORS proxy (set VITE_USE_CORS_PROXY=true to enable)
@@ -22,8 +22,8 @@ export const getAuthConfig = (): UiPathSDKConfig => {
   // These are the minimum required scopes for the loan origination app
   // Note: Maestro API access may require additional scopes depending on your UiPath version
   // If you get 403 errors, you may need to add more Orchestrator scopes
-  const defaultScopes = 'offline_access OR.Tasks OR.Tasks.Read OR.Tasks.Write OR.Folders OR.Folders.Read PIMS';
-  const scopes = import.meta.env.VITE_UIPATH_SCOPE || defaultScopes;
+  const defaultScopes = 'OR.Tasks OR.Tasks.Read OR.Tasks.Write OR.Folders OR.Folders.Read PIMS';
+  const scopes = import.meta.env.VITE_UIPATH_SCOPES || import.meta.env.VITE_UIPATH_SCOPE || defaultScopes;
   
   // CRITICAL: redirectUri must match EXACTLY what's configured in UiPath External App
   // In dev mode, ALWAYS use localhost (don't trust window.location.origin as it might be from OAuth redirect)
@@ -50,7 +50,7 @@ export const getAuthConfig = (): UiPathSDKConfig => {
   
   // Debug: Log what we detected
   if (import.meta.env.DEV) {
-    console.log('🔍 Redirect URI Debug:', {
+    console.log('ðŸ” Redirect URI Debug:', {
       isDev: import.meta.env.DEV,
       hostname: window.location.hostname,
       origin: window.location.origin,
@@ -60,7 +60,7 @@ export const getAuthConfig = (): UiPathSDKConfig => {
   }
   
   // Log configuration for debugging (especially important for cloud deployments)
-  console.log('🔧 Auth Configuration:', {
+  console.log('ðŸ”§ Auth Configuration:', {
     mode: import.meta.env.DEV ? 'DEVELOPMENT' : 'PRODUCTION',
     baseUrl,
     redirectUri,
@@ -73,10 +73,10 @@ export const getAuthConfig = (): UiPathSDKConfig => {
   
   // CRITICAL WARNING: The redirect URI MUST be registered in UiPath External App
   if (import.meta.env.DEV) {
-    console.warn('⚠️  ⚠️  ⚠️  CRITICAL: Redirect URI Configuration ⚠️  ⚠️  ⚠️');
+    console.warn('âš ï¸  âš ï¸  âš ï¸  CRITICAL: Redirect URI Configuration âš ï¸  âš ï¸  âš ï¸');
     console.warn('   Current redirect URI:', redirectUri);
     console.warn('   This EXACT URL must be registered in your UiPath External App!');
-    console.warn('   Go to: UiPath Cloud → Admin → External Applications → Your App');
+    console.warn('   Go to: UiPath Cloud â†’ Admin â†’ External Applications â†’ Your App');
     console.warn('   Add this redirect URI:', redirectUri);
     if (!import.meta.env.VITE_UIPATH_REDIRECT_URI) {
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -136,7 +136,7 @@ export const getBasename = (): string => {
       const basename = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
       
       // Log for debugging
-      console.log('🔍 Router Basename:', {
+      console.log('ðŸ” Router Basename:', {
         source: 'redirect URI',
         redirectUri,
         basename,
@@ -173,7 +173,7 @@ export const getBasename = (): string => {
         const basename = `/${segments[0]}`;
         
         // Log for debugging
-        console.log('🔍 Router Basename:', {
+        console.log('ðŸ” Router Basename:', {
           source: 'window location',
           pathname: window.location.pathname,
           basename,
@@ -189,4 +189,7 @@ export const getBasename = (): string => {
   // Default: no basename (for localhost development)
   return '/';
 };
+
+
+
 

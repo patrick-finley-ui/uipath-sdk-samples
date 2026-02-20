@@ -1,4 +1,4 @@
-import { UiPath } from '@uipath/uipath-typescript';
+﻿import { UiPath } from '@uipath/uipath-typescript';
 import { Claim } from '@/types/claims';
 import { USE_TEST_MODE } from '@/config/uipath.config';
 import { TEST_CLAIMS } from '@/data/testData';
@@ -28,3 +28,5 @@ export const fetchClaims = async (
     throw new Error('Unable to load claims data. Please try again.');
   }
 };
+
+
