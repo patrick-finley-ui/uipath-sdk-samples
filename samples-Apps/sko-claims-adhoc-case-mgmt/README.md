@@ -4,6 +4,19 @@ URL for live demo: https://staging.uipath.com/82e69757-09ff-4e6d-83e7-d530f2ac4e
 
 You'll need to authenticate to uipathlabs and have access to the folder to see the demo.
 
+## Claims Assistant Native Chat Configuration
+
+The Claim Detail page now uses the native UiPath TypeScript conversational agent SDK (not an embedded iFrame).
+
+Optional environment variables:
+
+- `VITE_CLAIMS_ASSISTANT_AGENT_ID` (default: `1776514`)
+- `VITE_CLAIMS_ASSISTANT_FOLDER_ID` (default: `2596817`)
+
+OAuth scope requirement:
+
+- `VITE_UIPATH_SCOPE` must include `ConversationalAgents` for real-time chat session support.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
