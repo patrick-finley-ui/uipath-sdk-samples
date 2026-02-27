@@ -1,4 +1,4 @@
-import type { UiPath } from '@uipath/uipath-typescript';
+﻿import type { UiPath } from '@uipath/uipath-typescript';
 import type { Claim, Task, ClaimMetadata } from '../types/claim';
 import { isMockMode, getCaseId, getFolderId } from '../utils/config';
 
@@ -651,3 +651,5 @@ export class ClaimService {
     throw new Error('Demo Setup: Case instance was not found after 1 minute of polling (10-second intervals). Ensure the Data Fabric trigger for the Case Management process is configured correctly.');
   }
 }
+
+

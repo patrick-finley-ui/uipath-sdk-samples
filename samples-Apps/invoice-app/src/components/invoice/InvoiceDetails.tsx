@@ -62,8 +62,8 @@ export const InvoiceDetails = ({ selectedInvoice, processDetails, sdk, onRefresh
     }
   }, [isTaskPopupOpen]);
 
-  const BUCKET_ID = 101519;
-  const FOLDER_ID = 2500475;
+  const BUCKET_ID = import.meta.env.VITE_UIPATH_BUCKET_ID;
+  const FOLDER_ID = import.meta.env.VITE_UIPATH_BUCKET_FOLDER_ID;
 
   // Helper function to convert taskLink to embed format
   const convertToEmbedUrl = (taskLink: string): string => {

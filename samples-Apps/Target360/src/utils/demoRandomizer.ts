@@ -414,7 +414,7 @@ export function randomizeEntity(
 		subjectNationality:
 			name.nationality,
 		subjectId: subjectId,
-		subjectDob: dob,
+		idDOB: dob, // Use entity field name 'idDOB'
 		risk: risk,
 		numChecksFlagged: flaggedChecks,
 		isRandomized: true, // Flag for UI indicators

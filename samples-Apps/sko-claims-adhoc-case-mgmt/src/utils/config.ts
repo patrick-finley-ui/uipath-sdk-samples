@@ -1,4 +1,4 @@
-import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
+﻿import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
 
 const REQUIRED_CONVERSATIONAL_SCOPE = 'ConversationalAgents';
 const DEFAULT_CLAIMS_ASSISTANT_AGENT_ID = 1776514;
@@ -54,7 +54,7 @@ export const getAuthConfig = (): UiPathSDKConfig => {
   
   // Log configuration for debugging
   if (import.meta.env.DEV) {
-    console.log('🔧 Auth Configuration:', {
+    console.log('ðŸ”§ Auth Configuration:', {
       mode: import.meta.env.DEV ? 'DEVELOPMENT' : 'PRODUCTION',
       baseUrl,
       redirectUri,
@@ -64,7 +64,7 @@ export const getAuthConfig = (): UiPathSDKConfig => {
       scopes: scopes.substring(0, 50) + '...',
     });
     
-    console.warn('⚠️  CRITICAL: Redirect URI Configuration');
+    console.warn('âš ï¸  CRITICAL: Redirect URI Configuration');
     console.warn('   Current redirect URI:', redirectUri);
     console.warn('   This EXACT URL must be registered in your UiPath External App!');
   }
@@ -156,3 +156,6 @@ export const getBasename = (): string => {
   
   return '/';
 };
+
+
+

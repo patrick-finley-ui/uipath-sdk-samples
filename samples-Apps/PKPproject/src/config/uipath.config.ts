@@ -1,4 +1,4 @@
-// Switch to enable/disable test mode (bypasses authentication and uses dummy data)
+﻿// Switch to enable/disable test mode (bypasses authentication and uses dummy data)
 export const USE_TEST_MODE = import.meta.env.VITE_USE_TEST_MODE === 'true';
 
 export const uiPathConfig = {
@@ -7,7 +7,7 @@ export const uiPathConfig = {
   tenantName: import.meta.env.VITE_UIPATH_TENANT_NAME,
   clientId: import.meta.env.VITE_UIPATH_CLIENT_ID,
   redirectUri: import.meta.env.VITE_UIPATH_REDIRECT_URI,
-  scope: import.meta.env.VITE_UIPATH_SCOPE,
+  scope: import.meta.env.VITE_UIPATH_SCOPES || import.meta.env.VITE_UIPATH_SCOPE,
   claimsEntityId: import.meta.env.VITE_CLAIMS_ENTITY_ID,
 };
 
@@ -35,3 +35,5 @@ export const validateConfig = () => {
     }
   }
 };
+
+

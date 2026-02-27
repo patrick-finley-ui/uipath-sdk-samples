@@ -26,8 +26,7 @@
     "vite": "^5.0.8"
   },
   "dependencies": {
-    "@uipath/uipath-ts-cli": "file:../../../../../Downloads/uipath-uipath-ts-cli-1.0.0-beta.5 (1).tgz",
-    "@uipath/uipath-typescript": "^1.0.0-beta.14",
+    "@uipath/uipath-typescript": "^1.0.0",
     "bpmn-js": "^18.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

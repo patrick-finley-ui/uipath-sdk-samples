@@ -1,4 +1,4 @@
-import { AuthProvider } from './hooks/useAuth';
+﻿import { AuthProvider } from './hooks/useAuth';
 import { useAuth } from './hooks/useAuth';
 import { LoginScreen } from './components/LoginScreen';
 import { ClaimsDashboard } from './components/ClaimsDashboard';
@@ -10,7 +10,7 @@ const authConfig: UiPathSDKConfig = {
   tenantName: import.meta.env.VITE_UIPATH_TENANT_NAME || 'your-tenant',
   baseUrl: window.location.origin,
   redirectUri: import.meta.env.VITE_UIPATH_REDIRECT_URI || window.location.origin,
-  scope: import.meta.env.VITE_UIPATH_SCOPE || 'offline_access',
+  scope: import.meta.env.VITE_UIPATH_SCOPES || import.meta.env.VITE_UIPATH_SCOPE || 'DataFabric.Schema.Read',
 };
 
 function AppContent() {
@@ -57,3 +57,6 @@ function App() {
 }
 
 export default App;
+
+
+
