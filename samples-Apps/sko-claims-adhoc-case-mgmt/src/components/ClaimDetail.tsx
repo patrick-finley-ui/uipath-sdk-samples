@@ -6,7 +6,12 @@ import { ClaimService } from '../services/claimService';
 import { Header } from './layout/Header';
 import { ClaimProgressBar } from './ClaimProgressBar';
 import { DocumentUploadTask } from './DocumentUploadTask';
-import { getFolderId } from '../utils/config';
+import { ClaimsAssistantPanel } from './chat/ClaimsAssistantPanel';
+import {
+  getClaimsAssistantAgentId,
+  getClaimsAssistantFolderId,
+  getFolderId,
+} from '../utils/config';
 import { resolveAssetUrl } from '../utils/assetHelpers';
 import { mapStepToAction, formatDueDate } from '../utils/stepMapper';
 import { getClaimantName } from '../utils/nameMapper';
@@ -51,6 +56,8 @@ export const ClaimDetail = () => {
   );
 
   const folderId = getFolderId() || 'default';
+  const claimsAssistantAgentId = getClaimsAssistantAgentId();
+  const claimsAssistantFolderId = getClaimsAssistantFolderId();
   const instanceId = caseInstanceId; // Case instance ID for maintaining integrity with UiPath entities
 
   const { data: metadata, isLoading: metadataLoading } = useQuery({
@@ -1009,34 +1016,14 @@ export const ClaimDetail = () => {
         </svg>
       </button>
 
-      {/* AI Chat Window */}
-      {isChatOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-96 h-[600px] bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col">
-          {/* Chat Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-            <h3 className="text-lg font-semibold text-gray-900">Claims Assistant</h3>
-            <button
-              onClick={() => setIsChatOpen(false)}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-200"
-              aria-label="Close chat"
-              title="Close (ESC)"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          {/* Chat iframe */}
-          <div className="flex-1 overflow-hidden rounded-b-lg">
-            <iframe
-              src="https://staging.uipath.com/uipathlabs/Playground/autopilotforeveryone_/conversational-agents/?agentId=1714873&mode=embedded&title=Claims%20Assistant"
-              className="w-full h-full border-0"
-              title="Claims Assistant Chat"
-              allow="camera; microphone; geolocation"
-            />
-          </div>
-        </div>
-      )}
+      <ClaimsAssistantPanel
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        sdk={sdk}
+        agentId={claimsAssistantAgentId}
+        folderId={claimsAssistantFolderId}
+        title="Claims Assistant"
+      />
     </div>
   );
 };

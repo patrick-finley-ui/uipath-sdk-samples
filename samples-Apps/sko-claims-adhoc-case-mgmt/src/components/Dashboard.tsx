@@ -648,24 +648,17 @@ export const Dashboard = () => {
         {/* Demo Setup modal */}
         {showConfigModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/50" onClick={handleCloseConfigModal} aria-hidden="true" />
+            <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
             <div className="relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Demo Setup</h3>
-                <button
-                  type="button"
-                  onClick={handleCloseConfigModal}
-                  className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300"
-                  aria-label="Close"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                Triggers the demo setup webhook, waits 10 seconds, then verifies a new case instance was created in the last minute.
+                Triggers demo setup, then polls for new cases every 10 seconds for up to 1 minute.
               </p>
+              <div className="mb-4 p-3 rounded-lg bg-amber-50 text-amber-900 text-sm border border-amber-200">
+                Do not close this modal until you see the success message that the demo set up is complete. If there are issues or the setup times out, please reconfigure the Data Fabric trigger for the Case Management process
+              </div>
               {demoSetupError && (
                 <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm border border-red-200">
                   {demoSetupError}

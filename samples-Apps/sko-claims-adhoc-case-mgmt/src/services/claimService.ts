@@ -456,12 +456,68 @@ export class ClaimService {
   }
 
   /**
-   * Fetches claim entity record filtered by CaseId only.
-   * Uses getById() to get the entity, then gets all records and filters by CaseId in JavaScript.
+   * Searches entity records page-by-page and returns the first record matching CaseId.
+   * Uses SDK pagination options to avoid missing records that are not in the first page.
+   */
+  private async findEntityRecordByCaseId(entityId: string, caseId: string): Promise<any | null> {
+    if (!this.sdk) {
+      return null;
+    }
+
+    const entity = await this.sdk.entities.getById(entityId);
+    console.log('Found entity with ID:', (entity as any).id || (entity as any).Id || entityId);
+
+    const PAGE_SIZE = 100;
+    let cursor: any | undefined;
+    const visitedCursorValues = new Set<string>();
+
+    while (true) {
+      const response = await entity.getAllRecords(
+        cursor
+          ? { pageSize: PAGE_SIZE, cursor }
+          : { pageSize: PAGE_SIZE }
+      );
+
+      const records = (response as any).items || response;
+      if (!Array.isArray(records)) {
+        console.log(`No records found for entity ${entityId}`);
+        return null;
+      }
+
+      const matchingRecord = records.find((record: any) => {
+        const recordCaseId = record.CaseId || record.caseId;
+        return recordCaseId === caseId;
+      });
+
+      if (matchingRecord) {
+        return matchingRecord;
+      }
+
+      const paginatedResponse = response as any;
+      if (!paginatedResponse.hasNextPage || !paginatedResponse.nextCursor) {
+        return null;
+      }
+
+      const nextCursor = paginatedResponse.nextCursor;
+      const cursorValue =
+        typeof nextCursor?.value === 'string'
+          ? nextCursor.value
+          : JSON.stringify(nextCursor);
+
+      if (visitedCursorValues.has(cursorValue)) {
+        console.warn('Detected repeated pagination cursor while searching entity records. Stopping search.');
+        return null;
+      }
+
+      visitedCursorValues.add(cursorValue);
+      cursor = nextCursor;
+    }
+  }
+
+  /**
+   * Fetches claim entity record filtered by CaseId.
    */
   async getClaimEntityRecord(caseId: string): Promise<any | null> {
-    const ENTITY_ID = 'ad76bb21-97fb-f011-832f-000d3abf6e1a';
-    
     if (isMockMode() || !this.sdk) {
       // Return mock data for development
       return {
@@ -472,32 +528,12 @@ export class ClaimService {
     }
 
     try {
-      // Get entity by ID
-      const entity = await this.sdk.entities.getById(ENTITY_ID);
-      console.log('Found entity with ID:', (entity as any).id || (entity as any).Id || ENTITY_ID);
-      
-      // Get all records from the entity
-      const response = await entity.getRecords();
-      const records = (response as any).items || response;
-      
-      if (!Array.isArray(records)) {
-        console.log(`No records found for entity ${ENTITY_ID}`);
-        return null;
-      }
-
-      // Filter records in JavaScript by CaseId only
-      const matchingRecords = records.filter((record: any) => {
-        const recordCaseId = record.CaseId || record.caseId;
-        return recordCaseId === caseId;
-      });
-      
-      if (matchingRecords.length === 0) {
+      const matchingRecord = await this.findEntityRecordByCaseId(ClaimService.CLAIMS_ENTITY_ID, caseId);
+      if (!matchingRecord) {
         console.log(`No entity record found for CaseId: ${caseId}`);
         return null;
       }
 
-      // Get the first matching record
-      const matchingRecord = matchingRecords[0];
       const recordId = matchingRecord.Id || matchingRecord.id;
       console.log('Found entity record with ID:', recordId);
       
@@ -529,31 +565,18 @@ export class ClaimService {
 
     try {
       // Resolve CaseId to the claims entity record GUID (same value previously sent as PICaseId in webhook)
-      const entity = await this.sdk.entities.getById(ClaimService.CLAIMS_ENTITY_ID);
-      const response = await entity.getRecords();
-      const records = (response as any).items || response;
-
-      if (!Array.isArray(records)) {
-        throw new Error(`No records found for entity ${ClaimService.CLAIMS_ENTITY_ID}`);
-      }
-
-      const matchingRecords = records.filter((record: any) => {
-        const recordCaseId = record.CaseId || record.caseId;
-        return recordCaseId === caseId;
-      });
-
-      if (matchingRecords.length === 0) {
+      const entityRecord = await this.findEntityRecordByCaseId(ClaimService.CLAIMS_ENTITY_ID, caseId);
+      if (!entityRecord) {
         throw new Error(`No entity record found for CaseId: ${caseId}`);
       }
 
-      const entityRecord = matchingRecords[0];
       const picaseId = entityRecord.Id || entityRecord.id;
       if (!picaseId) {
         throw new Error('Entity record does not have an Id field');
       }
 
       // Create new record in task entity via SDK (replaces webhook)
-      await this.sdk.entities.insertById(ClaimService.TASK_ENTITY_ID, {
+      await this.sdk.entities.insertRecordById(ClaimService.TASK_ENTITY_ID, {
         PICaseId: picaseId,
         RunSpecificTask: 'Threshold Injury Assessment',
         Complete: false,
@@ -567,9 +590,9 @@ export class ClaimService {
   }
 
   /**
-   * Demo Setup: Creates a new entity record via SDK insertById, waits 30s, finds the most
-   * recently created case instance (within last minute), then updates that entity record
-   * with the CaseId. Retries up to 2 times if case not found.
+   * Demo Setup: Creates a new entity record via SDK insertById, then polls for up to 1 minute
+   * (every 10 seconds) to find a recently created case instance and updates the entity record
+   * with the matched CaseId.
    */
   async runDemoSetup(): Promise<{ caseId: string }> {
     if (isMockMode() || !this.sdk) {
@@ -577,16 +600,17 @@ export class ClaimService {
     }
 
     // 1. Create entity record via SDK (no field data required)
-    const insertedRecord = await this.sdk.entities.insertById(DEMO_ENTITY_ID, {});
+    const insertedRecord = await this.sdk.entities.insertRecordById(DEMO_ENTITY_ID, {});
     const recordId = (insertedRecord as any).Id ?? (insertedRecord as any).id;
     if (!recordId || typeof recordId !== 'string') {
       throw new Error('Demo Setup: insertById did not return a valid record Id.');
     }
     console.log('Demo Setup: Entity record created, recordId', recordId);
 
-    // 2. Wait 30 seconds before first search
-    const SEARCH_DELAY_MS = 30000;
-    const MAX_ATTEMPTS = 3; // initial + 2 retries
+    // 2. Poll every 10 seconds for up to 1 minute
+    const POLL_INTERVAL_MS = 10000;
+    const MAX_POLL_WINDOW_MS = 60 * 1000;
+    const maxAttempts = Math.floor(MAX_POLL_WINDOW_MS / POLL_INTERVAL_MS);
 
     const searchForLatestCaseInstance = async (): Promise<string | null> => {
       const allCases = await this.sdk!.maestro.cases.getAll();
@@ -612,18 +636,18 @@ export class ClaimService {
       return caseId || null;
     };
 
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-      await new Promise((resolve) => setTimeout(resolve, SEARCH_DELAY_MS));
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
       const caseId = await searchForLatestCaseInstance();
       if (caseId) {
         console.log('Demo Setup: Latest case instance caseId', caseId);
-        await this.sdk.entities.updateById(DEMO_ENTITY_ID, [{ id: recordId, CaseId: caseId }]);
+        await this.sdk.entities.updateRecordsById(DEMO_ENTITY_ID, [{ id: recordId, CaseId: caseId }]);
         console.log('Demo Setup: Updated entity record with CaseId', caseId);
         return { caseId };
       }
-      console.log(`Demo Setup: Case instance not found (attempt ${attempt}/${MAX_ATTEMPTS})`);
+      console.log(`Demo Setup: Case instance not found (attempt ${attempt}/${maxAttempts})`);
     }
 
-    throw new Error('Demo Setup: Case instance was not found after 3 attempts. Ensure the case was started within the last minute.');
+    throw new Error('Demo Setup: Case instance was not found after 1 minute of polling (10-second intervals). Ensure the Data Fabric trigger for the Case Management process is configured correctly.');
   }
 }

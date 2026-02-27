@@ -1,5 +1,26 @@
 import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
 
+const REQUIRED_CONVERSATIONAL_SCOPE = 'ConversationalAgents';
+const DEFAULT_CLAIMS_ASSISTANT_AGENT_ID = 1776514;
+const DEFAULT_CLAIMS_ASSISTANT_FOLDER_ID = 2596817;
+
+const ensureScopeIncludesConversationalAgents = (scopeValue: string): string => {
+  const normalizedScopes = scopeValue
+    .split(/\s+/)
+    .map((scope) => scope.trim())
+    .filter(Boolean);
+
+  const hasConversationalScope = normalizedScopes.some(
+    (scope) => scope.toLowerCase() === REQUIRED_CONVERSATIONAL_SCOPE.toLowerCase()
+  );
+
+  if (!hasConversationalScope) {
+    normalizedScopes.push(REQUIRED_CONVERSATIONAL_SCOPE);
+  }
+
+  return Array.from(new Set(normalizedScopes)).join(' ');
+};
+
 export const getAuthConfig = (): UiPathSDKConfig => {
   // Determine if we should use CORS proxy (set VITE_USE_CORS_PROXY=true to enable)
   const useCorsProxy = import.meta.env.VITE_USE_CORS_PROXY === 'true';
@@ -14,7 +35,8 @@ export const getAuthConfig = (): UiPathSDKConfig => {
 
   // Default scopes for tasks and folders
   const defaultScopes = 'offline_access OR.Tasks OR.Tasks.Read OR.Tasks.Write OR.Folders OR.Folders.Read PIMS';
-  const scopes = import.meta.env.VITE_UIPATH_SCOPE || defaultScopes;
+  const configuredScopes = import.meta.env.VITE_UIPATH_SCOPE || defaultScopes;
+  const scopes = ensureScopeIncludesConversationalAgents(configuredScopes);
   
   // Redirect URI must match EXACTLY what's configured in UiPath External App
   let redirectUri: string;
@@ -69,6 +91,32 @@ export const getCaseId = (): string => {
 export const getFolderId = (): string => {
   // Folder Key for personal injury claims
   return import.meta.env.VITE_UIPATH_FOLDER_ID || '17c3f2fb-9994-42bf-b49b-6c917c756dba';
+};
+
+export const getClaimsAssistantAgentId = (): number => {
+  const configuredAgentId = Number.parseInt(
+    import.meta.env.VITE_CLAIMS_ASSISTANT_AGENT_ID || '',
+    10
+  );
+
+  if (Number.isNaN(configuredAgentId)) {
+    return DEFAULT_CLAIMS_ASSISTANT_AGENT_ID;
+  }
+
+  return configuredAgentId;
+};
+
+export const getClaimsAssistantFolderId = (): number => {
+  const configuredFolderId = Number.parseInt(
+    import.meta.env.VITE_CLAIMS_ASSISTANT_FOLDER_ID || '',
+    10
+  );
+
+  if (Number.isNaN(configuredFolderId)) {
+    return DEFAULT_CLAIMS_ASSISTANT_FOLDER_ID;
+  }
+
+  return configuredFolderId;
 };
 
 /**
