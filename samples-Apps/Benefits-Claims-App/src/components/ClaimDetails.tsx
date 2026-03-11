@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { ProcessedClaim } from '../hooks/useClaims';
 import { DocumentViewer } from './ui/DocumentViewer';
+import { ClaimsChatPanel } from './ClaimsChatPanel';
 
 interface ClaimDetailsProps {
   selectedClaim: ProcessedClaim | null;
@@ -65,6 +66,7 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack, onRefresh }: ClaimDet
   const [documentError, setDocumentError] = useState<string | null>(null);
   const [multiViewMode, setMultiViewMode] = useState(false);
   const [selectedDocumentTabs, setSelectedDocumentTabs] = useState<('application' | 'id' | 'paystub')[]>(['application']);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const showDebugBox = import.meta.env.VITE_SHOW_DEBUG_BOX === 'true';
 
   // Maestro process configuration
@@ -408,6 +410,16 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack, onRefresh }: ClaimDet
                   Refresh
                 </button>
               )}
+              <button
+                onClick={() => setIsChatOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow-md"
+                title="Open Claims Assistant"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Ask AI
+              </button>
             </div>
           </div>
         </div>
@@ -1222,6 +1234,13 @@ export const ClaimDetails = ({ selectedClaim, sdk, onBack, onRefresh }: ClaimDet
           document.body
         )
       }
+
+      {/* Claims Assistant Chat Drawer */}
+      <ClaimsChatPanel
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        claim={selectedClaim}
+      />
     </>
   );
 };

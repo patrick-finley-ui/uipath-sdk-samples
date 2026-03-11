@@ -22,6 +22,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      '/socket.io': {
+        target: 'https://staging.uipath.com',
+        changeOrigin: true,
+        secure: true,
+        ws: true,
+      },
     },
   }
   
