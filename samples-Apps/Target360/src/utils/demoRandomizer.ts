@@ -15,11 +15,7 @@ const DEMO_NAMES = [
 		last: "Hassan",
 		nationality: "Lebanese",
 	},
-	{
-		first: "Mina",
-		last: "Park",
-		nationality: "Korean",
-	},
+
 	{
 		first: "John",
 		last: "Smith",

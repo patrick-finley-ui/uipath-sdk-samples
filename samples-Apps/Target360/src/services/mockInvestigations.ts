@@ -7,11 +7,7 @@ import type {
 } from "../types/investigation";
 
 const names = [
-	{
-		first: "Mina",
-		last: "Park",
-		nationality: "Korean",
-	},
+
 	{
 		first: "Maria",
 		last: "Hassan",
