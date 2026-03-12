@@ -272,24 +272,7 @@ export const getMockSubjects =
 				checks: generateChecks(true),
 				isBulkPull: true,
 			},
-			{
-				id: "SUB-2024-002",
-				name: "Mina Park",
-				dob: "1992-07-22",
-				nationality: "USA",
-				passportNumber: "A55667788",
-				riskLevel: "Low",
-				status:
-					"Completed" as CaseStatus,
-				flaggedChecks: 0,
-				totalChecks: 10,
-				lastUpdated:
-					new Date().toISOString(),
-				intelSummary:
-					"Low-risk individual. Initial watchlist flag determined to be a name collision. All other checks are clear.",
-				checks: generateChecks(false),
-				isBulkPull: true,
-			},
+		
 			{
 				id: "SUB-2024-003",
 				name: "John Smith",
