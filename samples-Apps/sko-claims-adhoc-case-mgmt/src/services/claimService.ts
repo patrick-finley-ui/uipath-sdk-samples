@@ -1,12 +1,14 @@
 import type { UiPath } from '@uipath/uipath-typescript';
 import type { Claim, Task, ClaimMetadata } from '../types/claim';
-import { isMockMode, getCaseId, getFolderId } from '../utils/config';
+import { isMockMode, getCaseId, getFolderId, getCaseEntityId, getCaseEventEntityId } from '../utils/config';
 
 // Case key for personal injury claims
 const CASE_KEY = getCaseId();
+const CASE_ENTITY_ID = getCaseEntityId();
+const CASE_EVENT_ENTITY_ID = getCaseEventEntityId();
 
 // Entity ID for demo setup (claim entity)
-const DEMO_ENTITY_ID = 'ad76bb21-97fb-f011-832f-000d3abf6e1a';
+const DEMO_ENTITY_ID = CASE_ENTITY_ID;
 
 export class ClaimService {
   private sdk: UiPath | null;
@@ -545,9 +547,9 @@ export class ClaimService {
   }
 
   /** Claims entity ID used to resolve CaseId to the entity record GUID (PICaseId). */
-  private static readonly CLAIMS_ENTITY_ID = 'ad76bb21-97fb-f011-832f-000d3abf6e1a';
+  private static readonly CLAIMS_ENTITY_ID = CASE_ENTITY_ID;
   /** Entity ID for the task/event records created on document upload. */
-  private static readonly TASK_ENTITY_ID = 'daf05647-97fb-f011-832f-000d3abf6e1a';
+  private static readonly TASK_ENTITY_ID = CASE_EVENT_ENTITY_ID;
 
   /**
    * Submits document upload by creating a new entity record via the SDK.

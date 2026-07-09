@@ -10,6 +10,7 @@ import { ClaimsAssistantPanel } from './chat/ClaimsAssistantPanel';
 import {
   getClaimsAssistantAgentId,
   getClaimsAssistantFolderId,
+  getApprovalWebhookUrl,
   getFolderId,
 } from '../utils/config';
 import { resolveAssetUrl } from '../utils/assetHelpers';
@@ -163,40 +164,33 @@ export const ClaimDetail = () => {
       selectedCaseId: caseId,
     });
 
-    // Webhook URL - use window.location.origin in development (with proxy), direct URL in production
-    const WEBHOOK_PATH = '/uipathlabs/Playground/orchestrator_/t/12b29e74-5ca3-40ee-84d5-849dbc279bba/review-complete';
-    const WEBHOOK_URL = import.meta.env.DEV
-      ? `${window.location.origin}${WEBHOOK_PATH}`
-      : `https://staging.uipath.com${WEBHOOK_PATH}`;
-    const BEARER_TOKEN = 'rt_857C11F7016B4B7823F5C9C1B1C3C540522092F3AC82CC7564D558C81236970C-1';
+    const approvalWebhookUrl = getApprovalWebhookUrl();
+    if (!approvalWebhookUrl) {
+      alert('Approval webhook URL is not configured for this tenant.');
+      return;
+    }
 
     setIsApproving(true);
 
     try {
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${BEARER_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          recordId: recordId, // Entity record Id that matches the CaseId from the selected claim
-        }),
-      });
+      const response = await fetch(approvalWebhookUrl, { method: 'GET' });
+
+      const responseText = await response.text();
+      console.log('Webhook response:', { status: response.status, statusText: response.statusText, body: responseText });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Webhook request failed: ${response.status} - ${errorText}`);
+        throw new Error(`Webhook request failed: ${response.status} ${response.statusText} - ${responseText}`);
       }
 
       // Show success notification
       alert('Claim approved successfully!');
-      
+
       // Navigate back to dashboard
       navigate('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error approving claim:', error);
-      alert(`Failed to approve claim: ${error.message || 'Unknown error occurred'}`);
+      const message = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Failed to approve claim: ${message}`);
     } finally {
       setIsApproving(false);
     }
