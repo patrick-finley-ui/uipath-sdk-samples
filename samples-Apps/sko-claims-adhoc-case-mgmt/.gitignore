@@ -26,6 +26,8 @@ coverage
 # TypeScript
 *.tsbuildinfo
 
+*.vscode/
+
 # Cache
 .npm
 .eslintcache

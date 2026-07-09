@@ -1,8 +1,12 @@
 ﻿import type { UiPathSDKConfig } from '@uipath/uipath-typescript';
 
 const REQUIRED_CONVERSATIONAL_SCOPE = 'ConversationalAgents';
-const DEFAULT_CLAIMS_ASSISTANT_AGENT_ID = 1776514;
-const DEFAULT_CLAIMS_ASSISTANT_FOLDER_ID = 2596817;
+const DEFAULT_CLAIMS_ASSISTANT_AGENT_ID = 2010598;
+const DEFAULT_CLAIMS_ASSISTANT_FOLDER_ID = 2910971;
+const DEFAULT_CASE_ID = '1c925a52-f38f-493d-ad81-69f7100cd8ff';
+const DEFAULT_CASE_FOLDER_KEY = '1f4bbd5d-fdcf-4818-85ef-b50da0625f1e';
+const DEFAULT_CASE_ENTITY_ID = '0746a65f-ee47-f111-8ef3-000d3a261acd';
+const DEFAULT_CASE_EVENT_ENTITY_ID = '14b7ad66-ee47-f111-8ef3-000d3a261acd';
 
 const ensureScopeIncludesConversationalAgents = (scopeValue: string): string => {
   const normalizedScopes = scopeValue
@@ -30,7 +34,7 @@ export const getAuthConfig = (): UiPathSDKConfig => {
   if (useCorsProxy && import.meta.env.DEV) {
     baseUrl = window.location.origin;
   } else {
-    baseUrl = import.meta.env.VITE_UIPATH_BASE_URL || 'https://cloud.uipath.com';
+    baseUrl = import.meta.env.VITE_UIPATH_BASE_URL || 'https://api.uipath.com';
   }
 
   // Default scopes for tasks and folders
@@ -85,12 +89,24 @@ export const isMockMode = (): boolean => {
 
 export const getCaseId = (): string => {
   // Case ID for personal injury claims
-  return import.meta.env.VITE_CASE_ID || '3b73de73-32d9-458c-a2b5-833c6722c3fc';
+  return import.meta.env.VITE_CASE_ID || DEFAULT_CASE_ID;
 };
 
 export const getFolderId = (): string => {
   // Folder Key for personal injury claims
-  return import.meta.env.VITE_UIPATH_FOLDER_ID || '17c3f2fb-9994-42bf-b49b-6c917c756dba';
+  return import.meta.env.VITE_UIPATH_FOLDER_KEY || import.meta.env.VITE_UIPATH_FOLDER_ID || DEFAULT_CASE_FOLDER_KEY;
+};
+
+export const getCaseEntityId = (): string => {
+  return import.meta.env.VITE_CASE_ENTITY_ID || DEFAULT_CASE_ENTITY_ID;
+};
+
+export const getCaseEventEntityId = (): string => {
+  return import.meta.env.VITE_CASE_EVENT_ENTITY_ID || DEFAULT_CASE_EVENT_ENTITY_ID;
+};
+
+export const getApprovalWebhookUrl = (): string => {
+  return import.meta.env.VITE_APPROVAL_WEBHOOK_URL || '';
 };
 
 export const getClaimsAssistantAgentId = (): number => {
